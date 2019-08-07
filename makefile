@@ -1,6 +1,6 @@
 cc = g++
-obj += data.o variable.o function_base.o pdf_base.o nll.o mn_helper.o gaus_func.o gaus_pdf.o
-#obj += data.o variable.o function_base.o pdf_base.o nll.o gaus_func.o gaus_pdf.o
+obj += dataset.o variable.o function_base.o pdf_base.o nll.o mn_helper.o gaus_func.o gaus_pdf.o
+#obj += dataset.o variable.o function_base.o pdf_base.o nll.o gaus_func.o gaus_pdf.o
 flag += $(shell root-config --cflags)
 libs += $(shell root-config --libs)
 #libs += -lMathCore
@@ -8,8 +8,8 @@ libs += $(shell root-config --libs)
 test: test.cpp $(obj)
 	$(cc) $(flag) $(libs) $(obj) test.cpp -o test
 
-data.o: data.h data.cpp
-	$(cc) $(flag) $(libs) data.cpp -c -o data.o
+dataset.o: dataset.h dataset.cpp
+	$(cc) $(flag) $(libs) dataset.cpp -c -o dataset.o
 
 variable.o: variable.h variable.cpp
 	$(cc) $(flag) $(libs) variable.cpp -c -o variable.o

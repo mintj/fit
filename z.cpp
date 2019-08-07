@@ -21,5 +21,5 @@ double ri::operator()(const std::vector<double> & par) const
 int main()
 {
 	ROOT::Minuit2::MnUserParameters upar;
-	ROOT::Minuit2::MnMigrad migrad(ri, upar);
+	//ROOT::Minuit2::MnMigrad migrad(ri, upar);
 }

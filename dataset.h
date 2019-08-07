@@ -1,19 +1,19 @@
-#ifndef DATA_H__
-#define DATA_H__
+#ifndef DATASET_H__
+#define DATASET_H__
 
 #include <vector>
 #include <map>
 #include <string>
 #include "variable.h"
 
-class data
+class dataset
 {
 	public:
-		data(const std::string & name);
-		data(const std::vector<std::string> & names);
-		data(const variable & var);
-		data(const std::vector<variable> & vars);
-		virtual ~data();
+		dataset(const std::string & name);
+		dataset(const std::vector<std::string> & names);
+		dataset(const variable & var);
+		dataset(const std::vector<variable> & vars);
+		virtual ~dataset();
 		bool add(const std::vector<double> & vec, double w = 1, double e = 1);
 		bool add(double * arr, double w = 1, double e = 1);
 		double get(const std::string & var_name, int n) const;

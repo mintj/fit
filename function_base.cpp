@@ -1,6 +1,6 @@
 #include <iostream>
 #include "function_base.h"
-#include "data.h"
+#include "dataset.h"
 
 function_base::function_base(size_t d, const std::vector<std::string> & varname):
 	m_dim(d),
@@ -12,7 +12,7 @@ function_base::~function_base()
 {
 }
 		
-double function_base::sum_on(const data & d) const
+double function_base::sum_on(const dataset & d) const
 {
 	if (dim() != d.dim()) {
 		std::cout << "[function_base] error: dimension of function (" << dim() << ") does not match dimension of data (" << d.dim() << ")" << std::endl;
@@ -31,7 +31,7 @@ double function_base::sum_on(const data & d) const
 	return sum;
 }
 		
-void function_base::read_from_pars(const std::vector<double> & par) const
+void function_base::read_from_pars(const std::vector<double> & par)
 {
 	if (npar() == par.size()) {
 		for (size_t u = 0; u < par.size(); ++u) {
@@ -43,7 +43,7 @@ void function_base::read_from_pars(const std::vector<double> & par) const
 	}
 }
 
-void function_base::read_from_pars(const double * par) const
+void function_base::read_from_pars(const double * par)
 {
 	for (size_t u = 0; u < npar(); ++u) {
 		get_par(u).set_val(par[u]);
