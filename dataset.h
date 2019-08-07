@@ -2,36 +2,39 @@
 #define DATASET_H__
 
 #include <vector>
-#include <map>
 #include <string>
-#include "variable.h"
+#include "TTree.h"
 
 class dataset
 {
 	public:
-		dataset(const std::string & name);
-		dataset(const std::vector<std::string> & names);
-		dataset(const variable & var);
-		dataset(const std::vector<variable> & vars);
+		dataset(size_t s, size_t d);
+		dataset(size_t s, const std::vector<const char *> & varname);
+		dataset(TTree * t, const std::vector<const char *> & varname);
+		dataset(TTree * t, const std::vector<const char *> & varname, const char * wname);
+		dataset(const dataset & d) = delete;
+		dataset & operator=(const dataset & d) = delete;
 		virtual ~dataset();
-		bool add(const std::vector<double> & vec, double w = 1, double e = 1);
-		bool add(double * arr, double w = 1, double e = 1);
-		double get(const std::string & var_name, int n) const;
-		const std::vector<double> * at(int n) const;
-		double err_at(int n) const { return m_err.at(n); }
-		double err_down_at(int n) const { return m_err_down.at(n); }
-		double err_up_at(int n) const { return m_err_up.at(n); }
-		double weight_at(int n) const { return m_weight.at(n); }
-		size_t dim() const { return m_varmap.size(); }
-		size_t size() const { return m_point.size(); }
+		const double * at(size_t n) { return m_arr+n; }
+		size_t dim() { return m_dim; }
+		const char * name(size_t n) { return m_varname[n].c_str(); }
+		void set_name(size_t n, const char * name) { m_varname[n] = name; }
+		void set_val(size_t n, double v, double w) { m_arr[n] = v; m_weight[n] = w; }
+		size_t size() { return m_size; }
+		double weight_at(size_t n) { return m_weight[n]; }
+
+	private:
+		void aquire_resourse();
+		bool init_from_tree(TTree * t, const std::vector<const char *> & varname);
+		bool init_from_tree(TTree * t, const std::vector<const char *> & varname, const char * wname);
+		void release_resourse();
 	
 	protected:
-		std::map<std::string, int> m_varmap;
-		std::vector<std::vector<double>> m_point;
-		std::vector<double> m_weight;
-		std::vector<double> m_err;
-		std::vector<double> m_err_up;
-		std::vector<double> m_err_down;
+		std::string * m_varname;
+		double * m_arr;
+		double * m_weight;
+		size_t m_size;
+		size_t m_dim;
 };
 
 #endif

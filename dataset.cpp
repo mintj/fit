@@ -1,100 +1,119 @@
-#include <iostream>
+#include "TLeaf.h"
 #include "dataset.h"
-		
-dataset::dataset(const std::string & name)
+
+dataset::dataset(size_t s, size_t d):
+	m_size(s),
+	m_dim(d)
 {
-	m_varmap[name] = 0;
+	aquire_resourse();
 }
 
-dataset::dataset(const std::vector<std::string> & names)
+dataset::dataset(size_t s, const std::vector<const char *> & varname):
+	m_size(s),
+	m_dim(varname.size())
 {
-	int id = 0;
-	for (auto name: names) {
-		if (m_varmap.find(name) == m_varmap.end()) {
-			m_varmap[name] = id;
-			++id;
-		}
-		else {
-			std::cout << "[dataset] warning: ignore duplicate variable name [" << name << "]" << std::endl; 
-		}
+	aquire_resourse();
+	for (size_t u = 0; u < m_dim; ++u) {
+		m_varname[u] = varname.at(u);
 	}
 }
 
-dataset::dataset(const variable & var)
+dataset::dataset(TTree * t, const std::vector<const char *> & varname):
+	m_size(t->GetEntries()),
+	m_dim(varname.size())
 {
-	m_varmap[var.name()] = 0;
+	aquire_resourse();
+	if (!init_from_tree(t, varname)) release_resourse();
 }
 
-dataset::dataset(const std::vector<variable> & vars)
+dataset::dataset(TTree * t, const std::vector<const char *> & varname, const char * wname):
+	m_size(t->GetEntries()),
+	m_dim(varname.size())
 {
-	int id = 0;
-	for (auto var: vars) {
-		auto name = var.name();
-		if (m_varmap.find(name) == m_varmap.end()) {
-			m_varmap[name] = id;
-			++id;
-		}
-		else {
-			std::cout << "[dataset] warning: ignore duplicate variable name [" << name << "]" << std::endl; 
-		}
-	}
+	aquire_resourse();
+	if (!init_from_tree(t, varname, wname)) release_resourse();
 }
 
 dataset::~dataset()
 {
+	release_resourse();
 }
 
-bool dataset::add(const std::vector<double> & vec, double w, double e)
+void dataset::aquire_resourse()
 {
-	int d = dim();
-	if (d > vec.size()) {
-		std::cout << "[dataset] error: number of provided values (" << vec.size() << ") is smaller than dataset's dimension (" << d << ")" << std::endl;
-		return false;
-	}
-	else if (d < vec.size()) {
-		std::cout << "[dataset] error: number of provided values (" << vec.size() << ") is larger than dataset's dimension (" << d << ")" << std::endl;
+	m_arr = new double[m_size*m_dim];
+	m_weight = new double[m_size];
+	m_varname = new std::string[m_dim];
+}
+
+bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varname)
+{
+	std::map<std::string, double> dmap;
+	std::map<std::string, float> fmap;
+	for (size_t u = 0; u < m_dim; ++u) {
+		m_varname[u] = varname[u];
+		auto * leaf = t->FindLeaf(varname[u]);
+		if (leaf) {
+			if (!strcmp(leaf->GetTypeName(), "Double_t")) {
+				t->SetBranchAddress(varname[u], &dmap[varname[u]]);
+			}
+			else if (!strcmp(leaf->GetTypeName(), "Float_t")) {
+				t->SetBranchAddress(varname[u], &fmap[varname[u]]);
+			}
+			else return false;
+		}
+		else return false;
 	}
 
-	m_point.push_back(std::vector<double>(vec.cbegin(), vec.cend()));
-	m_weight.push_back(w);
-	m_err.push_back(e);
+	double * curr = m_arr;
+	for (size_t u = 0; u < m_size; ++u) {
+		t->GetEntry(u);
+		for (size_t v = 0; v < m_dim; ++v) {
+			if (dmap.find(varname[u]) != dmap.end()) {
+				*curr = dmap[varname[u]];
+				++curr;
+			}
+			else {
+				*curr = fmap[varname[u]];
+				++curr;
+			}
+		}
+		m_weight[u] = 1;
+	}
 	return true;
 }
 
-bool dataset::add(double * arr, double w, double e)
+bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varname, const char * wname)
 {
-	if (!arr) return false;
-
-	std::vector<double> p;
-	for (int u = 0; u < dim(); ++u) {
-		p.push_back(arr[u]);
+	if (init_from_tree(t, varname)) {
+		double wd;
+		float wf;
+		auto * leaf = t->FindLeaf(wname);
+		if (leaf) {
+			if (!strcmp(leaf->GetTypeName(), "Double_t")) {
+				t->SetBranchAddress(wname, &wd);
+				for (size_t u = 0; u < m_size; ++u) {
+					t->GetEntry(u);
+					m_weight[u] = wd; 
+				}
+			}
+			else if (!strcmp(leaf->GetTypeName(), "Float_t")) {
+				t->SetBranchAddress(wname, &wf);
+				for (size_t u = 0; u < m_size; ++u) {
+					t->GetEntry(u);
+					m_weight[u] = wf; 
+				}
+			}
+			else return false;
+		}
+		else return false;
 	}
-	m_point.push_back(std::move(p));
-	m_weight.push_back(w);
-	m_err.push_back(e);
 	return true;
 }
 
-double dataset::get(const std::string & var_name, int n) const
+void dataset::release_resourse()
 {
-	if (m_varmap.find(var_name) == m_varmap.end()) {
-		std::cout << "[dataset] error: invalid variable name [" << var_name << "]" << std::endl;
-		return 0;
-	}
-	else if (n >= size()) {
-		std::cout << "[dataset] error: required index (" << n << ") is out of range (0, " << size()-1 << ")" << std::endl;
-		return 0;
-	}
-	else {
-		return m_point.at(n).at(m_varmap.find(var_name)->second);
-	}
-}
-		
-const std::vector<double> * dataset::at(int n) const
-{
-	if (n >= size()) {
-		std::cout << "[dataset] error: required index (" << n << ") is out of range (0, " << size()-1 << ")" << std::endl;
-		return 0;
-	}
-	return &m_point.at(n);
+	if (m_arr) delete[] m_arr;
+	if (m_weight) delete [] m_weight;
+	if (m_varname) delete [] m_varname;
 }
