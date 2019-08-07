@@ -8,16 +8,6 @@ dataset::dataset(size_t s, size_t d):
 	aquire_resourse();
 }
 
-dataset::dataset(size_t s, const std::vector<const char *> & varname):
-	m_size(s),
-	m_dim(varname.size())
-{
-	aquire_resourse();
-	for (size_t u = 0; u < m_dim; ++u) {
-		m_varname[u] = varname.at(u);
-	}
-}
-
 dataset::dataset(TTree * t, const std::vector<const char *> & varname):
 	m_size(t->GetEntries()),
 	m_dim(varname.size())
@@ -43,7 +33,6 @@ void dataset::aquire_resourse()
 {
 	m_arr = new double[m_size*m_dim];
 	m_weight = new double[m_size];
-	m_varname = new std::string[m_dim];
 }
 
 bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varname)
@@ -51,7 +40,6 @@ bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varnam
 	std::map<std::string, double> dmap;
 	std::map<std::string, float> fmap;
 	for (size_t u = 0; u < m_dim; ++u) {
-		m_varname[u] = varname[u];
 		auto * leaf = t->FindLeaf(varname[u]);
 		if (leaf) {
 			if (!strcmp(leaf->GetTypeName(), "Double_t")) {
@@ -115,5 +103,4 @@ void dataset::release_resourse()
 {
 	if (m_arr) delete[] m_arr;
 	if (m_weight) delete [] m_weight;
-	if (m_varname) delete [] m_varname;
 }
