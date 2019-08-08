@@ -9,9 +9,9 @@ class variable;
 class gauss1d: public pdf
 {
 	public:
-		gauss1d(variable & m, variable & s, dataset * normset);
+		gauss1d(variable & m, variable & s, dataset * normset = 0);
 		virtual ~gauss1d();
-		virtual double evaluate(const double * x, const std::vector<double> & par);
+		virtual double evaluate(const double * x);
 };
 
 #endif

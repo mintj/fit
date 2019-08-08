@@ -57,12 +57,12 @@ bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varnam
 	for (size_t u = 0; u < m_size; ++u) {
 		t->GetEntry(u);
 		for (size_t v = 0; v < m_dim; ++v) {
-			if (dmap.find(varname[u]) != dmap.end()) {
-				*curr = dmap[varname[u]];
+			if (dmap.find(varname[v]) != dmap.end()) {
+				*curr = dmap[varname[v]];
 				++curr;
 			}
 			else {
-				*curr = fmap[varname[u]];
+				*curr = fmap[varname[v]];
 				++curr;
 			}
 		}

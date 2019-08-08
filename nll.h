@@ -2,9 +2,11 @@
 #define NLL_H__
 
 #include <vector>
+#include "TMath.h"
 #include "Minuit2/FCNBase.h"
 
 class dataset;
+class extpdf;
 class pdf;
 
 class nll: public ROOT::Minuit2::FCNBase

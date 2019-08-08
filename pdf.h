@@ -12,22 +12,38 @@ class variable;
 class pdf
 {
 	public:
-		pdf(size_t dim, const std::vector<variable *> & var, dataset * normset);
+		pdf(size_t dim, const std::vector<variable *> & var, dataset * normset = 0);
+		pdf(const pdf & p) = default;
+		pdf & operator=(const pdf & p) = default;
 		virtual ~pdf();
 		size_t dim() { return m_dim; }
-		virtual double evaluate(const double * x, const std::vector<double> & par) = 0;
-		variable * get_var(int n) { return m_var[n]; }
-		variable * get_var(const char * name);
-		double log_sum(dataset * data, const std::vector<double> & par);
-		double norm(const std::vector<double> & par);
-		size_t npar() { return m_npar; }
-		double sum(dataset * data, const std::vector<double> & par);
+		virtual double evaluate(const double * x) = 0;
+		double get_par_ext(int n);
+		double get_par_int(int n);
+		variable * get_var_ext(int n) { return m_var_ext[n]; }
+		variable * get_var_int(int n) { return m_var_int[n]; }
+		virtual double log_sum(dataset * data);
+		virtual double norm();
+		size_t npar_ext() { return m_var_ext.size(); }
+		size_t npar_int() { return m_var_int.size(); }
+		virtual double operator()(const double * x);
+		virtual void set_normset(dataset * normset);
+		virtual double sum(dataset * data);
 
 	protected:
+		pdf();
+		bool updated();
+		int normalize();
+
+	protected:
+		bool m_updated;
 		size_t m_dim;
-		size_t m_npar;
-		std::vector<variable *> m_var;
-		std::map<const char *, int> m_vmap;
+		int m_status;
+		double m_norm;
+		std::vector<double> m_var_int_lastvalue;
+		std::vector<variable *> m_var_ext;
+		std::vector<variable *> m_var_int;
+		std::map<variable *, int> m_vcount ;
 		dataset * m_normset;
 };
 
