@@ -1,13 +1,11 @@
 #include <iostream>
-
 #include "Minuit2/FunctionMinimum.h"
 #include "Minuit2/MnMigrad.h"
 #include "Minuit2/MnMinos.h"
 #include "Minuit2/MnUserParameters.h"
-
-#include "datahist.h"
 #include "dataset.h"
-#include "nll.h"
+#include "fcn.h"
+#include "nllfcn.h"
 #include "pdf.h" 
 #include "variable.h"
 
@@ -35,34 +33,35 @@ pdf::~pdf()
 {
 }
 
-nll * pdf::create_nll(dataset * data)
+nllfcn * pdf::create_nll(dataset * data)
 {
-	m_nll.reset(new nll(this, data));
+	m_nll.reset(new nllfcn(this, data));
 	return m_nll.get();
 }
 
-//fitresult * pdf::fit(dataset * data, bool minos)
-void pdf::fit(dataset * data, bool minos_err)
+fitresult * pdf::fit(dataset * data, bool minos_err)
 {
-	nll * fcn = create_nll(data);
+	nllfcn * nll = create_nll(data);
 	ROOT::Minuit2::MnUserParameters upar;
-	for (variable * v: fcn->get_var_list()) {
-		//cout << "aaa: " << v->name() << " " << v->value() << " (" << v->limit_down() << ", " << v->limit_up() << ") " << v->err() << endl;
+	for (variable * v: nll->get_var_list()) {
+		//std::cout << "aaa: " << v->name() << " " << v->value() << " (" << v->limit_down() << ", " << v->limit_up() << ") " << v->err() << std::endl;
 		upar.Add(v->name(), v->value(), v->err());
 		upar.SetLimits(v->name(), v->limit_down(), v->limit_up());
 	}
-	ROOT::Minuit2::MnMigrad migrad(*fcn, upar);
+	ROOT::Minuit2::MnMigrad migrad(*nll, upar);
 	ROOT::Minuit2::FunctionMinimum min = migrad();
-	cout << min << endl;
+	std::cout << min << std::endl;
 	if (minos_err) {
-		ROOT::Minuit2::MnMinos minos(*fcn, min);
-		cout << "1-sigma minos errors: " << endl;
-		for (size_t u = 0; u < fcn->get_var_list().size(); ++u) {
-			pair<double, double> e = minos(u);
-			const char * name = fcn->get_var(u)->name();
-			cout << name << " " << min.UserState().Value(name) << " " << e.first << " " << e.second << endl;
+		ROOT::Minuit2::MnMinos minos(*nll, min);
+		std::cout << "1-sigma minos errors: " << std::endl;
+		for (size_t u = 0; u < nll->get_var_list().size(); ++u) {
+			std::pair<double, double> e = minos(u);
+			const char * name = nll->get_var(u)->name();
+			std::cout << name << " " << min.UserState().Value(name) << " " << e.first << " " << e.second << std::endl;
 		}
 	}
+
+	return 0;
 }
 double pdf::get_lastvalue(int n)
 {
@@ -87,6 +86,24 @@ variable * pdf::get_var(int n)
 std::vector<variable *> & pdf::get_vars()
 {
 	return m_varlist;
+}
+
+// 1d dimensional integral
+double pdf::integral(double a, double b, int n)
+{
+	if (!m_normset || !m_normset->size()) return 0;
+
+	int sign = (a < b) ? 1 : -1;
+	double min = (a < b) ? a : b;
+	double max = (a < b) ? b : a;
+	double intval = 0;
+	for (size_t u = 0; u < m_normset->size(); ++u) {
+		double d = m_normset->at(u)[n];
+		if (d > min && d < max) {
+			intval += evaluate(m_normset->at(u));
+		}
+	}
+	return sign*intval*norm()/m_normset->size();
 }
 
 double pdf::log_sum(dataset * data)

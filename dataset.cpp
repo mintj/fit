@@ -53,6 +53,7 @@ bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varnam
 		else return false;
 	}
 
+	m_wsize = 0;
 	double * curr = m_arr;
 	for (size_t u = 0; u < m_size; ++u) {
 		t->GetEntry(u);
@@ -67,6 +68,7 @@ bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varnam
 			}
 		}
 		m_weight[u] = 1;
+		m_wsize += 1;
 	}
 	return true;
 }
@@ -74,6 +76,7 @@ bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varnam
 bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varname, const char * wname)
 {
 	if (init_from_tree(t, varname)) {
+		m_wsize = 0;
 		double wd;
 		float wf;
 		auto * leaf = t->FindLeaf(wname);
@@ -83,6 +86,7 @@ bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varnam
 				for (size_t u = 0; u < m_size; ++u) {
 					t->GetEntry(u);
 					m_weight[u] = wd; 
+					m_wsize += wd;
 				}
 			}
 			else if (!strcmp(leaf->GetTypeName(), "Float_t")) {
@@ -90,6 +94,7 @@ bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varnam
 				for (size_t u = 0; u < m_size; ++u) {
 					t->GetEntry(u);
 					m_weight[u] = wf; 
+					m_wsize += wf;
 				}
 			}
 			else return false;

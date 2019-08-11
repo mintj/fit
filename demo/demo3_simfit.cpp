@@ -1,7 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include "TRandom3.h"
-#include "../header.cpp"
+#include "../header.h"
 
 using namespace std;
 
@@ -22,8 +22,8 @@ void demo3_simfit()
 	gaussian gaus(m, w);
 	breitwigner bw(m, w);
 	
-	double n1 = data_gaus.size();
-	double n2 = data_bw.size();
+	double n1 = data_gaus.nevt();
+	double n2 = data_bw.nevt();
 	variable n_gaus("n_gaus", n1, 0.5*n1, 1.5*n1);
 	variable n_bw("n_bw", n2, 0.5*n2, 1.5*n2);
 	extpdf gaus_ext(&gaus, &n_gaus, &data_norm);

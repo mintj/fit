@@ -23,13 +23,15 @@ void datahist::aquire_resourse()
 
 bool datahist::init_from_h1d(TH1 * h)
 {
+	m_wsize = 0;
 	for (size_t u = 0; u < h->GetNbinsX(); ++u) {
-		m_arr[u] = h->GetBinCenter(u-1);
-		m_weight[u] = h->GetBinContent(u-1);
-		m_edge[u] = h->GetBinLowEdge(u-1);
-		m_err[u] = h->GetBinError(u-1);
-		m_err_down[u] = h->GetBinErrorLow(u-1);
-		m_err_up[u] = h->GetBinErrorUp(u-1);
+		m_arr[u] = h->GetBinCenter(u+1);
+		m_weight[u] = h->GetBinContent(u+1);
+		m_edge[u] = h->GetBinLowEdge(u+1);
+		m_err[u] = h->GetBinError(u+1);
+		m_err_down[u] = h->GetBinErrorLow(u+1);
+		m_err_up[u] = h->GetBinErrorUp(u+1);
+		m_wsize += m_weight[u];
 	}
 	m_edge[m_size] = m_edge[m_size-1] + h->GetBinWidth(m_size);
 	return true;

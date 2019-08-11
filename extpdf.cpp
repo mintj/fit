@@ -1,13 +1,15 @@
 #include <iostream>
 #include "TMath.h"
+#include "chi2fcn.h"
+#include "datahist.h"
 #include "dataset.h"
 #include "extpdf.h"
 #include "variable.h"
 
-extpdf::extpdf(pdf * p, variable * nevt, dataset * normset):
+extpdf::extpdf(pdf * p, variable * n, dataset * normset):
 	pdf(),
 	m_plist(1, p),
-	m_nlist(1, nevt)
+	m_nlist(1, n)
 {
 	m_normset = normset;
 	init();
@@ -26,19 +28,52 @@ extpdf::~extpdf()
 {
 }
 
+fitresult * extpdf::chi2fit(datahist * data, bool minos_err)
+{
+	chi2fcn * chi2 = create_chi2(data);
+	ROOT::Minuit2::MnUserParameters upar;
+	for (variable * v: chi2->get_var_list()) {
+		//std::cout << "aaa: " << v->name() << " " << v->value() << " (" << v->limit_down() << ", " << v->limit_up() << ") " << v->err() << std::endl;
+		upar.Add(v->name(), v->value(), v->err());
+		upar.SetLimits(v->name(), v->limit_down(), v->limit_up());
+	}
+	ROOT::Minuit2::MnMigrad migrad(*chi2, upar);
+	ROOT::Minuit2::FunctionMinimum min = migrad();
+	std::cout << min << std::endl;
+	if (minos_err) {
+		ROOT::Minuit2::MnMinos minos(*chi2, min);
+		std::cout << "1-sigma minos errors: " << std::endl;
+		for (size_t u = 0; u < chi2->get_var_list().size(); ++u) {
+			std::pair<double, double> e = minos(u);
+			const char * name = chi2->get_var(u)->name();
+			std::cout << name << " " << min.UserState().Value(name) << " " << e.first << " " << e.second << std::endl;
+		}
+	}
+
+	return 0;
+}
+
+chi2fcn * extpdf::create_chi2(datahist * data)
+{
+	m_chi2.reset(new chi2fcn(this, data));
+	return m_chi2.get();
+}
+
 double extpdf::evaluate(const double * x)
 {
-	double v = 0;
-	double ntot = 0;
-	for (size_t u = 0; u < m_plist.size(); ++u) {
-		double raw_value = m_plist.at(u)->evaluate(x);
-		double norm_factor = m_plist.at(u)->norm();
-		double nevt = m_nlist.at(u)->value();
-		//std::cout << "(raw, norm, nevt) = (" << raw_value << ", " << norm_factor << ", " << nevt << ")" << std::endl;
-		v += nevt * norm_factor * raw_value;
-		ntot += nevt;
+	double ntot = nevt();
+	if (ntot) {
+		double v = 0;
+		for (size_t u = 0; u < m_plist.size(); ++u) {
+			double raw_value = m_plist.at(u)->evaluate(x);
+			double norm_factor = m_plist.at(u)->norm();
+			double n = m_nlist.at(u)->value();
+			//std::cout << "(raw, norm, nevt) = (" << raw_value << ", " << norm_factor << ", " << n << ")" << std::endl;
+			v += n * norm_factor * raw_value;
+		}
+		return v/ntot;
 	}
-	return v/ntot;
+	else return 0;
 }
 
 void extpdf::init()
@@ -53,40 +88,34 @@ void extpdf::init()
 		m_varlist.push_back(v);
 		m_lastvalue.push_back(v->value());
 	}
-	//for (size_t u = 0; u < m_plist.size(); ++u) {
-	//	pdf * curr_pdf = m_plist.at(u);
-	//	variable * curr_nevt = m_nlist.at(u);
-	//	curr_pdf->set_normset(m_normset);
-	//	m_dim = curr_pdf->dim();
+}
 
-	//	for (size_t vid = 0; vid < curr_pdf->npar_ext(); ++vid) {
-	//		variable * v = curr_pdf->get_var_ext(vid);
-	//		m_var_ext.push_back(v);
-	//	}
-	//	m_var_ext.push_back(curr_nevt);
-
-	//	for (size_t vid = 0; vid < curr_pdf->npar_int(); ++vid) {
-	//		variable * v = curr_pdf->get_var_int(vid);
-	//		if (m_vcount.find(v) == m_vcount.end()) {
-	//			m_var_int.push_back(v);
-	//		}
-	//		++m_vcount[v];
-	//	}
-	//	if (m_vcount.find(curr_nevt) == m_vcount.end()) {
-	//		m_var_int.push_back(curr_nevt);
-	//	}
-	//	++m_vcount[curr_nevt];
-	//}
+double extpdf::integral(double a, double b, int n)
+{
+	double ntot = nevt();
+	if (ntot) {
+		double intval = 0;
+		for (size_t u = 0; u < m_nlist.size(); ++u) {
+			intval += m_nlist.at(u)->value() * m_plist.at(u)->integral(a, b, n);
+		}
+		intval /= ntot;
+		return intval;
+	}
+	else return 0;
 }
 
 double extpdf::log_sum(dataset * data)
 {
-	double nevt = 0;
+	return pdf::log_sum(data) + log(TMath::Poisson(nevt(), data->nevt()));
+}
+
+double extpdf::nevt()
+{
+	double ntot = 0;
 	for (size_t u = 0; u < m_nlist.size(); ++u) {
-		nevt += m_nlist.at(u)->value();
+		ntot += m_nlist.at(u)->value();
 	}
-	//std::cout << "nevt = " << nevt << ", ndata = " << data->size() << std::endl;
-	return pdf::log_sum(data) + log(TMath::Poisson(nevt, data->size()));
+	return ntot;
 }
 
 void extpdf::set_normset(dataset * normset)
