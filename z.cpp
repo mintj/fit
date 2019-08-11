@@ -71,7 +71,7 @@ TTree * get_tree()
 
 void z()
 {
-	write_data(7.5, 1);
+	write_data(1.5, 8.5);
 	TTree * t = get_tree();
 
 	RooRealVar x("x", "", -10, 10);

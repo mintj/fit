@@ -6,11 +6,11 @@
 class dataset;
 class variable;
 
-class gauss1d: public pdf
+class gaussian: public pdf
 {
 	public:
-		gauss1d(variable & m, variable & s, dataset * normset = 0);
-		virtual ~gauss1d();
+		gaussian(variable & m, variable & s, dataset * normset = 0);
+		virtual ~gaussian();
 		virtual double evaluate(const double * x);
 };
 

@@ -10,14 +10,14 @@ mn_helper::mn_helper(nll & fcn):
 	m_mn_upar = new ROOT::Minuit2::MnUserParameters;
 	for (size_t u = 0; u < fcn.target_pdf()->npar_int(); ++u) {
 		auto v = fcn.target_pdf()->get_var_int(u);
-		//cout << "aaa: " << v->name << " " << v->value << " " << v->err << endl;
+		cout << "aaa: " << v->name() << " " << v->value() << " (" << v->limit_down() << ", " << v->limit_up() << ") " << v->err() << endl;
 		m_mn_upar->Add(v->name(), v->value(), v->err());
 		m_mn_upar->SetLimits(v->name(), v->limit_down(), v->limit_up());
 	}
 
 	m_mn_migrad = new ROOT::Minuit2::MnMigrad(m_fcn, *m_mn_upar);
-	m_mn_min = 0;
 	m_mn_minos = 0;
+	m_mn_min = 0;
 }
 		
 //mn_helper::mn_helper(chi2 & fcn):
