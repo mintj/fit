@@ -1,3 +1,4 @@
+#include <iostream>
 #include <cmath>
 #include "datahist.h"
 #include "chi2.h"

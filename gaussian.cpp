@@ -1,3 +1,4 @@
+#include <iostream>
 #include <cmath>
 #include "dataset.h"
 #include "gaussian.h" 

@@ -1,6 +1,13 @@
 #include <iostream>
+
+#include "Minuit2/FunctionMinimum.h"
+#include "Minuit2/MnMigrad.h"
+#include "Minuit2/MnMinos.h"
+#include "Minuit2/MnUserParameters.h"
+
 #include "datahist.h"
 #include "dataset.h"
+#include "nll.h"
 #include "pdf.h" 
 #include "variable.h"
 
@@ -31,6 +38,37 @@ pdf::pdf(size_t dim, const std::vector<variable *> & var, dataset * normset):
 
 pdf::~pdf()
 {
+}
+
+nll * pdf::create_nll(dataset * data)
+{
+	m_nll.reset(new nll(this, data));
+	return m_nll.get();
+}
+
+//fitresult * pdf::fit(dataset * data, bool minos)
+void pdf::fit(dataset * data, bool minos_err)
+{
+	nll * fcn = create_nll(data);
+	ROOT::Minuit2::MnUserParameters upar;
+	for (size_t u = 0; u < npar_int(); ++u) {
+		auto v = get_var_int(u);
+		cout << "aaa: " << v->name() << " " << v->value() << " (" << v->limit_down() << ", " << v->limit_up() << ") " << v->err() << endl;
+		upar.Add(v->name(), v->value(), v->err());
+		upar.SetLimits(v->name(), v->limit_down(), v->limit_up());
+	}
+	ROOT::Minuit2::MnMigrad migrad(*fcn, upar);
+	ROOT::Minuit2::FunctionMinimum min = migrad();
+	cout << min << endl;
+	if (minos_err) {
+		ROOT::Minuit2::MnMinos minos(*fcn, min);
+		cout << "1-sigma minos errors: " << endl;
+		for (size_t u = 0; u < npar_int(); ++u) {
+			pair<double, double> e = minos(u);
+			const char * name = get_var_int(u)->name();
+			cout << name << " " << min.UserState().Value(name) << " " << e.first << " " << e.second << endl;
+		}
+	}
 }
 
 double pdf::get_par_ext(int n)

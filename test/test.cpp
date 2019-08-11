@@ -129,8 +129,9 @@ void test()
 	variable ngaus("ngaus", 0.5*ntot, 0, ntot);
 	variable nbw("nbw", 0.5*ntot, 0, ntot);
 	extpdf sum({&gaus, &bw}, {&ngaus, &nbw}, &data_norm);
-	nll fcn(&sum, &data_mix);
+	sum.fit(&data_mix);
+	//nll fcn(&sum, &data_mix);
 
-	mn_helper mn(fcn);
-	mn.minimize(true);
+	//mn_helper mn(fcn);
+	//mn.minimize(true);
 }

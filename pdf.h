@@ -3,10 +3,11 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 
 class dataset;
 class datahist;
-class fitr;
+class nll;
 class variable;
 
 class pdf
@@ -16,8 +17,11 @@ class pdf
 		pdf(const pdf & p) = default;
 		pdf & operator=(const pdf & p) = default;
 		virtual ~pdf();
+		nll * create_nll(dataset * data);
 		size_t dim() { return m_dim; }
 		virtual double evaluate(const double * x) = 0;
+		//fitresult * fit(dataset * data, bool minos_err = false);
+		void fit(dataset * data, bool minos_err = false);
 		double get_par_ext(int n);
 		double get_par_int(int n);
 		variable * get_var_ext(int n) { return m_var_ext[n]; }
@@ -43,7 +47,8 @@ class pdf
 		std::vector<double> m_var_int_lastvalue;
 		std::vector<variable *> m_var_ext;
 		std::vector<variable *> m_var_int;
-		std::map<variable *, int> m_vcount ;
+		std::map<variable *, int> m_vcount;
+		std::shared_ptr<nll> m_nll;
 		dataset * m_normset;
 };
 

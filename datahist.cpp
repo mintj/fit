@@ -1,3 +1,4 @@
+#include <iostream>
 #include "datahist.h"
 
 datahist::datahist(TH1 * h):
