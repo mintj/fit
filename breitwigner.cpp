@@ -15,7 +15,7 @@ breitwigner::~breitwigner()
 double breitwigner::evaluate(const double * x)
 {
 	double t = x[0];
-	double m = get_par_ext(0);
-	double w = get_par_ext(1);
+	double m = get_par(0);
+	double w = get_par(1);
 	return 1.0/((t-m)*(t-m)+0.25*w*w);
 }

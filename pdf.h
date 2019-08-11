@@ -22,14 +22,14 @@ class pdf
 		virtual double evaluate(const double * x) = 0;
 		//fitresult * fit(dataset * data, bool minos_err = false);
 		void fit(dataset * data, bool minos_err = false);
-		double get_par_ext(int n);
-		double get_par_int(int n);
-		variable * get_var_ext(int n) { return m_var_ext[n]; }
-		variable * get_var_int(int n) { return m_var_int[n]; }
+		double get_lastvalue(int n);
+		std::vector<double> & get_lastvalues();
+		double get_par(int n);
+		variable * get_var(int n);
+		std::vector<variable *> & get_vars();
 		virtual double log_sum(dataset * data);
 		virtual double norm();
-		size_t npar_ext() { return m_var_ext.size(); }
-		size_t npar_int() { return m_var_int.size(); }
+		size_t npar() { return m_varlist.size(); }
 		virtual double operator()(const double * x);
 		virtual void set_normset(dataset * normset);
 		virtual double sum(dataset * data);
@@ -44,10 +44,8 @@ class pdf
 		size_t m_dim;
 		int m_status;
 		double m_norm;
-		std::vector<double> m_var_int_lastvalue;
-		std::vector<variable *> m_var_ext;
-		std::vector<variable *> m_var_int;
-		std::map<variable *, int> m_vcount;
+		std::vector<double> m_lastvalue;
+		std::vector<variable *> m_varlist;
 		std::shared_ptr<nll> m_nll;
 		dataset * m_normset;
 };

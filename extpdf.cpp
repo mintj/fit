@@ -43,30 +43,40 @@ double extpdf::evaluate(const double * x)
 
 void extpdf::init()
 {
-	for (size_t u = 0; u < m_plist.size(); ++u) {
-		pdf * curr_pdf = m_plist.at(u);
-		variable * curr_nevt = m_nlist.at(u);
-		curr_pdf->set_normset(m_normset);
-		m_dim = curr_pdf->dim();
-
-		for (size_t vid = 0; vid < curr_pdf->npar_ext(); ++vid) {
-			variable * v = curr_pdf->get_var_ext(vid);
-			m_var_ext.push_back(v);
-		}
-		m_var_ext.push_back(curr_nevt);
-
-		for (size_t vid = 0; vid < curr_pdf->npar_int(); ++vid) {
-			variable * v = curr_pdf->get_var_int(vid);
-			if (m_vcount.find(v) == m_vcount.end()) {
-				m_var_int.push_back(v);
-			}
-			++m_vcount[v];
-		}
-		if (m_vcount.find(curr_nevt) == m_vcount.end()) {
-			m_var_int.push_back(curr_nevt);
-		}
-		++m_vcount[curr_nevt];
+	for (pdf * p: m_plist) {
+		m_dim = p->dim();
+		p->set_normset(m_normset);
+		m_varlist.insert(m_varlist.end(), p->get_vars().begin(), p->get_vars().end());
+		m_lastvalue.insert(m_lastvalue.end(), p->get_lastvalues().begin(), p->get_lastvalues().end());
 	}
+	for (variable * v: m_nlist) {
+		m_varlist.push_back(v);
+		m_lastvalue.push_back(v->value());
+	}
+	//for (size_t u = 0; u < m_plist.size(); ++u) {
+	//	pdf * curr_pdf = m_plist.at(u);
+	//	variable * curr_nevt = m_nlist.at(u);
+	//	curr_pdf->set_normset(m_normset);
+	//	m_dim = curr_pdf->dim();
+
+	//	for (size_t vid = 0; vid < curr_pdf->npar_ext(); ++vid) {
+	//		variable * v = curr_pdf->get_var_ext(vid);
+	//		m_var_ext.push_back(v);
+	//	}
+	//	m_var_ext.push_back(curr_nevt);
+
+	//	for (size_t vid = 0; vid < curr_pdf->npar_int(); ++vid) {
+	//		variable * v = curr_pdf->get_var_int(vid);
+	//		if (m_vcount.find(v) == m_vcount.end()) {
+	//			m_var_int.push_back(v);
+	//		}
+	//		++m_vcount[v];
+	//	}
+	//	if (m_vcount.find(curr_nevt) == m_vcount.end()) {
+	//		m_var_int.push_back(curr_nevt);
+	//	}
+	//	++m_vcount[curr_nevt];
+	//}
 }
 
 double extpdf::log_sum(dataset * data)

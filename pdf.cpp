@@ -25,14 +25,9 @@ pdf::pdf(size_t dim, const std::vector<variable *> & var, dataset * normset):
 	m_updated(true),
 	m_normset(normset)
 {
-	for (size_t u = 0; u < var.size(); ++u) {
-		variable * v = var.at(u);
-		m_var_ext.push_back(v);
-		if (m_vcount.find(v) == m_vcount.end()) {
-			m_var_int.push_back(v);
-			m_var_int_lastvalue.push_back(0);
-			++m_vcount[v];
-		}
+	for (variable * v: var) {
+		m_varlist.push_back(v);
+		m_lastvalue.push_back(v->value());
 	}
 }
 
@@ -51,9 +46,8 @@ void pdf::fit(dataset * data, bool minos_err)
 {
 	nll * fcn = create_nll(data);
 	ROOT::Minuit2::MnUserParameters upar;
-	for (size_t u = 0; u < npar_int(); ++u) {
-		auto v = get_var_int(u);
-		cout << "aaa: " << v->name() << " " << v->value() << " (" << v->limit_down() << ", " << v->limit_up() << ") " << v->err() << endl;
+	for (variable * v: fcn->get_var_list()) {
+		//cout << "aaa: " << v->name() << " " << v->value() << " (" << v->limit_down() << ", " << v->limit_up() << ") " << v->err() << endl;
 		upar.Add(v->name(), v->value(), v->err());
 		upar.SetLimits(v->name(), v->limit_down(), v->limit_up());
 	}
@@ -63,24 +57,37 @@ void pdf::fit(dataset * data, bool minos_err)
 	if (minos_err) {
 		ROOT::Minuit2::MnMinos minos(*fcn, min);
 		cout << "1-sigma minos errors: " << endl;
-		for (size_t u = 0; u < npar_int(); ++u) {
+		for (size_t u = 0; u < fcn->get_var_list().size(); ++u) {
 			pair<double, double> e = minos(u);
-			const char * name = get_var_int(u)->name();
+			const char * name = fcn->get_var(u)->name();
 			cout << name << " " << min.UserState().Value(name) << " " << e.first << " " << e.second << endl;
 		}
 	}
 }
-
-double pdf::get_par_ext(int n)
+double pdf::get_lastvalue(int n)
 {
-	return get_var_ext(n)->value();
+	return m_lastvalue[n];
 }
 
-double pdf::get_par_int(int n)
+std::vector<double> & pdf::get_lastvalues()
 {
-	return get_var_int(n)->value();
+	return m_lastvalue;
 }
 
+double pdf::get_par(int n)
+{
+	return m_varlist[n]->value();
+}
+
+variable * pdf::get_var(int n)
+{
+	return m_varlist[n];
+}
+
+std::vector<variable *> & pdf::get_vars()
+{
+	return m_varlist;
+}
 
 double pdf::log_sum(dataset * data)
 {
@@ -149,9 +156,9 @@ double pdf::sum(dataset * data)
 
 bool pdf::updated()
 {
-	for (size_t u = 0; u < m_var_int.size(); ++u) {
-		if (m_var_int.at(u)->value() != m_var_int_lastvalue.at(u)) {
-			m_var_int_lastvalue[u] = m_var_int.at(u)->value();
+	for (size_t u = 0; u < m_varlist.size(); ++u) {
+		if (m_varlist.at(u)->value() != m_lastvalue.at(u)) {
+			m_lastvalue[u] = m_varlist.at(u)->value();
 			m_updated |= true;
 		}
 	}
