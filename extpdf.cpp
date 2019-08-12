@@ -46,11 +46,11 @@ double extpdf::evaluate(const double * x)
 	if (ntot) {
 		double v = 0;
 		for (size_t u = 0; u < m_plist.size(); ++u) {
-			double raw_value = m_plist.at(u)->evaluate(x);
-			double norm_factor = m_plist.at(u)->norm();
+			double vraw = m_plist.at(u)->evaluate(x);
+			double scale = m_plist.at(u)->norm();
 			double n = m_nlist.at(u)->value();
-			//std::cout << "(raw, norm, nevt) = (" << raw_value << ", " << norm_factor << ", " << n << ")" << std::endl;
-			v += n * norm_factor * raw_value;
+			//std::cout << "(raw, norm, nevt) = (" << vraw << ", " << scale << ", " << n << ")" << std::endl;
+			v += n * scale * vraw;
 		}
 		return v/ntot;
 	}
@@ -87,7 +87,7 @@ double extpdf::integral(double a, double b, int n)
 
 double extpdf::log_sum(dataset * data)
 {
-	return pdf::log_sum(data) + log(TMath::Poisson(nevt(), data->nevt()));
+	return pdf::log_sum(data) + log(TMath::Poisson(data->nevt(), nevt()));
 }
 
 double extpdf::nevt()

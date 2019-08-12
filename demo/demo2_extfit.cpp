@@ -27,5 +27,5 @@ void demo2_extfit()
 	variable n_gaus("n_gaus", 0.5*ntot, 0, ntot);
 	variable n_bw("n_bw", 0.5*ntot, 0, ntot);
 	extpdf sum({&gaus, &bw}, {&n_gaus, &n_bw}, &data_norm);
-	sum.fit(&data_mix, true);
+	sum.fit(&data_mix, false);
 }

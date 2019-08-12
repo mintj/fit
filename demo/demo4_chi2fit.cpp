@@ -37,27 +37,8 @@ void demo4_chi2fit()
 	variable n_gaus("n_gaus", 0.5*ntot, 0, ntot);
 	variable n_bw("n_bw", 0.5*ntot, 0, ntot);
 	extpdf sum({&gaus, &bw}, {&n_gaus, &n_bw}, &data_norm);
-	//cout << "********************* uniform binning ********************" << endl;
-	//sum.chi2fit(&data_mix);
+	cout << "********************* uniform binning ********************" << endl;
+	sum.chi2fit(&data_mix);
 	cout << "********************* coarse binning ********************" << endl;
 	sum.chi2fit(&data_mix2);
-	
-	//cout << "********************* breit wigner *******************" << endl;
-	//variable w("w", 4, 0.3, 20);
-	//breitwigner bw(m, w, &data_norm);
-	//bw.fit(&data_bw, true);
-	//
-	//cout << "********************* integral ********************" << endl;
-	//variable m2("m2", 1);
-	//variable s2("s2", 2);
-	//gaussian gaus2(m2, s2, &data_norm);
-	//cout << "integral of gaussian on [mean-1*sigma, mean+1*sigma]: " << gaus2.integral(m2.value()-s2.value(), m2.value()+s2.value()) << endl;	
-	//cout << "integral of gaussian on [mean-2*sigma, mean+2*sigma]: " << gaus2.integral(m2.value()-2*s2.value(), m2.value()+2*s2.value()) << endl;	
-	//cout << "integral of gaussian on [mean-3*sigma, mean+3*sigma]: " << gaus2.integral(m2.value()-3*s2.value(), m2.value()+3*s2.value()) << endl;	
-	//
-	//variable w2("w2", 2);
-	//breitwigner bw2(m2, w2, &data_norm);
-	//cout << "integral of bw on [mean-1*width, mean+1*width]: " << bw2.integral(m2.value()-w2.value(), m2.value()+w2.value()) << endl;	
-	//cout << "integral of bw on [mean-2*width, mean+2*width]: " << bw2.integral(m2.value()-2*w2.value(), m2.value()+2*w2.value()) << endl;	
-	//cout << "integral of bw on [mean-3*width, mean+3*width]: " << bw2.integral(m2.value()-3*w2.value(), m2.value()+3*w2.value()) << endl;	
 }

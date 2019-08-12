@@ -73,19 +73,19 @@ std::vector<variable *> & pdf::get_vars()
 // 1d dimensional integral
 double pdf::integral(double a, double b, int n)
 {
-	if (!m_normset || !m_normset->size()) return 0;
+	if (!m_normset || !m_normset->nevt()) return 0;
 
 	int sign = (a < b) ? 1 : -1;
 	double min = (a < b) ? a : b;
 	double max = (a < b) ? b : a;
 	double intval = 0;
-	for (size_t u = 0; u < m_normset->size(); ++u) {
+	for (size_t u = 0; u < m_normset->nevt(); ++u) {
 		double d = m_normset->at(u)[n];
 		if (d > min && d < max) {
-			intval += evaluate(m_normset->at(u)) * m_normset->weight(u);
+			intval += evaluate(m_normset->at(u)) * m_normset->weight(u); //TODO: check here
 		}
 	}
-	return sign*intval*norm()/m_normset->size();
+	return sign*intval*norm()/m_normset->nevt();
 }
 
 double pdf::log_sum(dataset * data)
@@ -116,21 +116,12 @@ int pdf::normalize()
 	if (updated()) {
 		m_updated = false;
 		m_norm = 1;
-		if (!m_normset || !m_normset->size()) return -1;
+		if (!m_normset || !m_normset->nevt()) return -1;
 
-		for (int u = 0; u < m_varlist.size(); ++u) {
-			cout << m_varlist[u]->name() << "(" << m_varlist[u]->value() << ") "; 
-		}
-		cout << endl;
 		double s = sum(m_normset);
-		cout << "sum = " << s << ": ";
-		for (int u = 0; u < m_varlist.size(); ++u) {
-			cout << m_varlist[u]->name() << "(" << m_varlist[u]->value() << ") ";
-		}
-		cout << endl;
 		if (s == 0) return 1;
 		else {
-			m_norm = m_normset->size()/s;
+			m_norm = m_normset->nevt()/s;
 			return 0;
 		}
 	}

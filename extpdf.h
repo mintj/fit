@@ -21,7 +21,7 @@ class extpdf: public pdf
 		virtual double integral(double a, double b, int n = 0);
 		virtual double log_sum(dataset * data);
 		virtual double nevt();
-		virtual double norm() { cout << "wtf" << endl; return 1; }
+		virtual double norm() { return 1; }
 		virtual void set_normset(dataset * normset);
 
 	protected:
