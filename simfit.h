@@ -8,7 +8,6 @@ class chi2fcn;
 class datahist;
 class dataset;
 class extpdf;
-class fitresult;
 class nllfcn;
 class pdf;
 
@@ -17,10 +16,10 @@ class simfit
 	public:
 		simfit(const std::vector<pdf *> & pdflist, const std::vector<dataset *> & datalist);
 		virtual ~simfit();
-		fitresult * chi2fit(bool minos_err = false);
+		void chi2fit(bool minos_err = false);
 		nllfcn * create_nll();
 		chi2fcn * create_chi2();
-		fitresult * fit(bool minos_err = false);
+		void fit(bool minos_err = false);
 
 	protected:
 		std::vector<dataset *> m_dlist;

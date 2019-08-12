@@ -34,6 +34,7 @@ double nllfcn::operator()(const std::vector<double> & par) const
 		pdf * p = m_pdflist[u];
 		dataset * d = m_datalist[u];
 		nll -= p->log_sum(d);
+		cout << "pnorm and dnevt: " << p->norm() << " " << d->nevt() << endl;
 		nll -= log(p->norm())*d->nevt();
 	}
 

@@ -7,7 +7,6 @@
 
 class datahist;
 class dataset;
-class fitresult;
 class nllfcn;
 class variable;
 
@@ -21,7 +20,7 @@ class pdf
 		nllfcn * create_nll(dataset * data);
 		size_t dim() { return m_dim; }
 		virtual double evaluate(const double * x) = 0;
-		fitresult * fit(dataset * data, bool minos_err = false);
+		void fit(dataset * data, bool minos_err = false);
 		double get_lastvalue(int n);
 		std::vector<double> & get_lastvalues();
 		double get_par(int n);

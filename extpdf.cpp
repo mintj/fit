@@ -28,29 +28,10 @@ extpdf::~extpdf()
 {
 }
 
-fitresult * extpdf::chi2fit(datahist * data, bool minos_err)
+void extpdf::chi2fit(datahist * data, bool minos_err)
 {
 	chi2fcn * chi2 = create_chi2(data);
-	ROOT::Minuit2::MnUserParameters upar;
-	for (variable * v: chi2->get_var_list()) {
-		//std::cout << "aaa: " << v->name() << " " << v->value() << " (" << v->limit_down() << ", " << v->limit_up() << ") " << v->err() << std::endl;
-		upar.Add(v->name(), v->value(), v->err());
-		upar.SetLimits(v->name(), v->limit_down(), v->limit_up());
-	}
-	ROOT::Minuit2::MnMigrad migrad(*chi2, upar);
-	ROOT::Minuit2::FunctionMinimum min = migrad();
-	std::cout << min << std::endl;
-	if (minos_err) {
-		ROOT::Minuit2::MnMinos minos(*chi2, min);
-		std::cout << "1-sigma minos errors: " << std::endl;
-		for (size_t u = 0; u < chi2->get_var_list().size(); ++u) {
-			std::pair<double, double> e = minos(u);
-			const char * name = chi2->get_var(u)->name();
-			std::cout << name << " " << min.UserState().Value(name) << " " << e.first << " " << e.second << std::endl;
-		}
-	}
-
-	return 0;
+	chi2->minimize(minos_err);
 }
 
 chi2fcn * extpdf::create_chi2(datahist * data)
@@ -125,13 +106,3 @@ void extpdf::set_normset(dataset * normset)
 		p->set_normset(normset);
 	}
 }
-
-//double extpdf::norm()
-//{
-//	
-//}
-//
-//double extpdf::sum(dataset * data)
-//{
-//	return 0;
-//}

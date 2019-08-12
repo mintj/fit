@@ -71,7 +71,7 @@ TTree * get_tree(const char * name)
 	return t;
 }
 
-void gendata()
+void gen_data()
 {
 	write_data("flat.root", 100000, gen_flat, {});
 	write_data("gaus.root", 10000, gen_gaus, {1.5, 4.5});

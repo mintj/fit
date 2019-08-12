@@ -39,30 +39,12 @@ nllfcn * pdf::create_nll(dataset * data)
 	return m_nll.get();
 }
 
-fitresult * pdf::fit(dataset * data, bool minos_err)
+void pdf::fit(dataset * data, bool minos_err)
 {
 	nllfcn * nll = create_nll(data);
-	ROOT::Minuit2::MnUserParameters upar;
-	for (variable * v: nll->get_var_list()) {
-		//std::cout << "aaa: " << v->name() << " " << v->value() << " (" << v->limit_down() << ", " << v->limit_up() << ") " << v->err() << std::endl;
-		upar.Add(v->name(), v->value(), v->err());
-		upar.SetLimits(v->name(), v->limit_down(), v->limit_up());
-	}
-	ROOT::Minuit2::MnMigrad migrad(*nll, upar);
-	ROOT::Minuit2::FunctionMinimum min = migrad();
-	std::cout << min << std::endl;
-	if (minos_err) {
-		ROOT::Minuit2::MnMinos minos(*nll, min);
-		std::cout << "1-sigma minos errors: " << std::endl;
-		for (size_t u = 0; u < nll->get_var_list().size(); ++u) {
-			std::pair<double, double> e = minos(u);
-			const char * name = nll->get_var(u)->name();
-			std::cout << name << " " << min.UserState().Value(name) << " " << e.first << " " << e.second << std::endl;
-		}
-	}
-
-	return 0;
+	nll->minimize(minos_err);
 }
+
 double pdf::get_lastvalue(int n)
 {
 	return m_lastvalue[n];
@@ -100,7 +82,7 @@ double pdf::integral(double a, double b, int n)
 	for (size_t u = 0; u < m_normset->size(); ++u) {
 		double d = m_normset->at(u)[n];
 		if (d > min && d < max) {
-			intval += evaluate(m_normset->at(u));
+			intval += evaluate(m_normset->at(u)) * m_normset->weight(u);
 		}
 	}
 	return sign*intval*norm()/m_normset->size();
@@ -113,7 +95,7 @@ double pdf::log_sum(dataset * data)
 	double log_sum = 0;
 	for (size_t u = 0; u < data->size(); ++u) {
 		double v = evaluate(data->at(u));
-		if (v > 0) log_sum += log(v);
+		if (v > 0) log_sum += log(v) * data->weight(u);
 	}
 	return log_sum;
 }
@@ -136,7 +118,16 @@ int pdf::normalize()
 		m_norm = 1;
 		if (!m_normset || !m_normset->size()) return -1;
 
+		for (int u = 0; u < m_varlist.size(); ++u) {
+			cout << m_varlist[u]->name() << "(" << m_varlist[u]->value() << ") "; 
+		}
+		cout << endl;
 		double s = sum(m_normset);
+		cout << "sum = " << s << ": ";
+		for (int u = 0; u < m_varlist.size(); ++u) {
+			cout << m_varlist[u]->name() << "(" << m_varlist[u]->value() << ") ";
+		}
+		cout << endl;
 		if (s == 0) return 1;
 		else {
 			m_norm = m_normset->size()/s;
@@ -166,7 +157,7 @@ double pdf::sum(dataset * data)
 	double s = 0;
 	for (size_t u = 0; u < data->size(); ++u) {
 		double v = evaluate(data->at(u));
-		if (v >= 0) s += v;
+		if (v >= 0) s += v * data->weight(u);
 	}
 	return s;
 }

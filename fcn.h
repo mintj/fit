@@ -5,6 +5,9 @@
 #include <map>
 #include "TMath.h"
 #include "Minuit2/FCNBase.h"
+#include "Minuit2/FunctionMinimum.h"
+#include "Minuit2/MnMigrad.h"
+#include "Minuit2/MnMinos.h"
 
 class datahist;
 class dataset;
@@ -25,6 +28,7 @@ class fcn: public ROOT::Minuit2::FCNBase
 		std::vector<pdf *> & get_pdf_list() { return m_pdflist; }
 		variable * get_var(int n) { return m_varlist[n]; }
 		std::vector<variable *> & get_var_list() { return m_varlist; }
+		void minimize(bool minos_err = false);
 		virtual double operator()(const std::vector<double> & par) const = 0;
 		virtual double Up() const = 0;
 
@@ -36,6 +40,9 @@ class fcn: public ROOT::Minuit2::FCNBase
 		std::vector<pdf *> m_pdflist;
 		std::vector<variable *> m_varlist;
 		std::map<variable *, int> m_vcount;
+		ROOT::Minuit2::MnMigrad * m_migrad;
+		ROOT::Minuit2::MnMinos * m_minos;
+		ROOT::Minuit2::FunctionMinimum * m_min;
 };
 
 #endif

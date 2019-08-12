@@ -18,29 +18,10 @@ simfit::~simfit()
 {
 }
 
-fitresult * simfit::chi2fit(bool minos_err)
+void simfit::chi2fit(bool minos_err)
 {
 	chi2fcn * chi2 = create_chi2();
-	ROOT::Minuit2::MnUserParameters upar;
-	for (variable * v: chi2->get_var_list()) {
-		//std::cout << "aaa: " << v->name() << " " << v->value() << " (" << v->limit_down() << ", " << v->limit_up() << ") " << v->err() << std::endl;
-		upar.Add(v->name(), v->value(), v->err());
-		upar.SetLimits(v->name(), v->limit_down(), v->limit_up());
-	}
-	ROOT::Minuit2::MnMigrad migrad(*chi2, upar);
-	ROOT::Minuit2::FunctionMinimum min = migrad();
-	std::cout << min << std::endl;
-	if (minos_err) {
-		ROOT::Minuit2::MnMinos minos(*chi2, min);
-		std::cout << "1-sigma minos errors: " << std::endl;
-		for (size_t u = 0; u < chi2->get_var_list().size(); ++u) {
-			std::pair<double, double> e = minos(u);
-			const char * name = chi2->get_var(u)->name();
-			std::cout << name << " " << min.UserState().Value(name) << " " << e.first << " " << e.second << std::endl;
-		}
-	}
-
-	return 0;
+	if (chi2) chi2->minimize();
 }
 
 nllfcn * simfit::create_nll()
@@ -74,27 +55,8 @@ chi2fcn * simfit::create_chi2()
 	return m_chi2.get();
 }
 
-fitresult * simfit::fit(bool minos_err)
+void simfit::fit(bool minos_err)
 {
 	nllfcn * nll = create_nll();
-	ROOT::Minuit2::MnUserParameters upar;
-	for (variable * v: nll->get_var_list()) {
-		//cout << "aaa: " << v->name() << " " << v->value() << " (" << v->limit_down() << ", " << v->limit_up() << ") " << v->err() << endl;
-		upar.Add(v->name(), v->value(), v->err());
-		upar.SetLimits(v->name(), v->limit_down(), v->limit_up());
-	}
-	ROOT::Minuit2::MnMigrad migrad(*nll, upar);
-	ROOT::Minuit2::FunctionMinimum min = migrad();
-	cout << min << endl;
-	if (minos_err) {
-		ROOT::Minuit2::MnMinos minos(*nll, min);
-		cout << "1-sigma minos errors: " << endl;
-		for (size_t u = 0; u < nll->get_var_list().size(); ++u) {
-			pair<double, double> e = minos(u);
-			const char * name = nll->get_var(u)->name();
-			cout << name << " " << min.UserState().Value(name) << " " << e.first << " " << e.second << endl;
-		}
-	}
-
-	return 0;
+	nll->minimize();
 }
