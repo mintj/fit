@@ -32,9 +32,6 @@ void df06_weightedfit()
 	cout << "ntot = " << ntot << endl;
 	variable n_bw("n_bw", 0.5*ntot, 0, ntot);
 	variable n_gaus("n_gaus", 0.5*ntot, 0, ntot);
-	//extpdf sum(&bw, &n_bw, &data_norm);
-	//extpdf sum(&gaus, &n_gaus, &data_norm);
-	//sum.fit(&data_gaus);
 	extpdf sum({&bw, &gaus}, {&n_bw, &n_gaus}, &data_norm);
 	sum.fit(&data_mix);
 }
