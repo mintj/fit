@@ -1,13 +1,13 @@
 #include <iostream>
 #include <iomanip>
 #include "TRandom3.h"
-#include "../header.h"
+#include "inc/header.h"
 
 using namespace std;
 
-void demo6_weightedfit()
+void df06_weightedfit()
 {
-	TFile * f = TFile::Open("DATA/weighted.root");
+	TFile * f = TFile::Open("test-data/weighted.root");
 	TTree * t = (TTree *)f->Get("t");
 
 	dataset data_norm(t, {"x"});

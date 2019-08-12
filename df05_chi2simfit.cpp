@@ -1,14 +1,14 @@
 #include <iostream>
 #include <iomanip>
 #include "TRandom3.h"
-#include "../header.h"
+#include "inc/header.h"
 
 using namespace std;
 
-void demo5_chi2simfit()
+void df05_chi2simfit()
 {
-	TFile * f1 = TFile::Open("DATA/flat.root");
-	TFile * f2 = TFile::Open("DATA/comb.root");
+	TFile * f1 = TFile::Open("test-data/flat.root");
+	TFile * f2 = TFile::Open("test-data/comb.root");
 	TTree * t_flat = (TTree *)f1->Get("t");
 	TTree * t_gaus = (TTree *)f2->Get("t1");
 	TTree * t_bw   = (TTree *)f2->Get("t2");

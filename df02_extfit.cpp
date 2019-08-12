@@ -1,14 +1,14 @@
 #include <iostream>
 #include <iomanip>
 #include "TRandom3.h"
-#include "../header.h"
+#include "inc/header.h"
 
 using namespace std;
 
-void demo2_extfit()
+void df02_extfit()
 {
-	TFile * f1 = TFile::Open("DATA/flat.root");
-	TFile * f2 = TFile::Open("DATA/mix.root");
+	TFile * f1 = TFile::Open("test-data/flat.root");
+	TFile * f2 = TFile::Open("test-data/mix.root");
 	TTree * t_flat = (TTree *)f1->Get("t");
 	TTree * t_mix  = (TTree *)f2->Get("t");
 

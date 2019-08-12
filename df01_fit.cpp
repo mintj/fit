@@ -1,15 +1,15 @@
 #include <iostream>
 #include <iomanip>
 #include "TRandom3.h"
-#include "../header.h"
+#include "inc/header.h"
 
 using namespace std;
 
-void demo1_fit()
+void df01_fit()
 {
-	TFile * f1 = TFile::Open("DATA/flat.root");
-	TFile * f2 = TFile::Open("DATA/gaus.root");
-	TFile * f3 = TFile::Open("DATA/bw.root");
+	TFile * f1 = TFile::Open("test-data/flat.root");
+	TFile * f2 = TFile::Open("test-data/gaus.root");
+	TFile * f3 = TFile::Open("test-data/bw.root");
 	TTree * t_flat = (TTree *)f1->Get("t");
 	TTree * t_gaus = (TTree *)f2->Get("t");
 	TTree * t_bw   = (TTree *)f3->Get("t");

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include "TRandom3.h"
-#include "../header.h"
+#include "inc/header.h"
 
 using namespace std;
 
@@ -30,9 +30,9 @@ double gaussian2d::evaluate(const double * x)
 	return exp(-(tx*tx-2*rho*tx*ty+ty*ty)/2/(1-rho*rho));
 }
 
-void demo7_2dfit()
+void df07_2dfit()
 {
-	TFile * f = TFile::Open("DATA/weighted_2d.root");
+	TFile * f = TFile::Open("test-data/weighted_2d.root");
 	TTree * t = (TTree *)f->Get("t");
 
 	dataset data_norm(t, {"x", "y"});
