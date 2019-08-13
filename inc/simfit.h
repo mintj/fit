@@ -4,10 +4,10 @@
 #include <vector>
 #include <memory>
 
+class addpdf;
 class chi2fcn;
 class datahist;
 class dataset;
-class extpdf;
 class nllfcn;
 class pdf;
 

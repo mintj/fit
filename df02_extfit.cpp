@@ -23,9 +23,10 @@ void df02_extfit()
 	variable w("w", 4, 0.3, 20);
 	breitwigner bw(m2, w);
 	
-	double ntot = data_mix.nevt();
-	variable n_gaus("n_gaus", 0.5*ntot, 0, ntot);
-	variable n_bw("n_bw", 0.5*ntot, 0, ntot);
-	extpdf sum({&gaus, &bw}, {&n_gaus, &n_bw}, &data_norm);
+	//double ntot = data_mix.nevt();
+	//variable n_gaus("n_gaus", 0.5*ntot, 0, ntot);
+	//variable n_bw("n_bw", 0.5*ntot, 0, ntot);
+	variable frac("frac", 0.5, 0, 1);
+	addpdf sum({&gaus, &bw}, {&frac}, &data_norm);
 	sum.fit(&data_mix, false);
 }

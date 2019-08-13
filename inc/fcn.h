@@ -9,9 +9,9 @@
 #include "Minuit2/MnMigrad.h"
 #include "Minuit2/MnMinos.h"
 
+class addpdf;
 class datahist;
 class dataset;
-class extpdf;
 class pdf;
 class variable;
 
@@ -20,7 +20,7 @@ class fcn: public ROOT::Minuit2::FCNBase
 	public:
 		fcn(pdf * p, dataset * d);
 		fcn(const std::vector<pdf *> plist, const std::vector<dataset *> dlist);
-		fcn(const std::vector<extpdf *> plist, const std::vector<datahist *> dlist);
+		fcn(const std::vector<addpdf *> plist, const std::vector<datahist *> dlist);
 		virtual ~fcn();
 		dataset * get_data(int n) { return m_datalist[n]; }
 		std::vector<dataset *> & get_data_list() { return m_datalist; }

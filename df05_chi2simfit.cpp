@@ -34,11 +34,7 @@ void df05_chi2simfit()
 	
 	double n1 = data_gaus.nevt();
 	double n2 = data_bw.nevt();
-	variable n_gaus("n_gaus", n1, 0.5*n1, 1.5*n1);
-	variable n_bw("n_bw", n2, 0.5*n2, 1.5*n2);
-	extpdf gaus_ext(&gaus, &n_gaus, &data_norm);
-	extpdf bw_ext(&bw, &n_bw, &data_norm);
 	
-	simfit comb({&gaus_ext, &bw_ext}, {&data_gaus, &data_bw});
+	simfit comb({&gaus, &bw}, {&data_gaus, &data_bw});
 	comb.chi2fit(true);
 }

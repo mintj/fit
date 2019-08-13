@@ -1,19 +1,23 @@
 #include <iostream>
 #include <cmath>
+#include "addpdf.h"
 #include "dataset.h"
-#include "extpdf.h"
 #include "fcn.h"
 #include "nllfcn.h"
 #include "pdf.h"
 #include "variable.h"
 
 nllfcn::nllfcn(pdf * p, dataset * d):
-	fcn(p, d)
+	fcn(p, d),
+	m_arr_logsum(1),
+	m_arr_norm(1, -1)
 {
 }
 
 nllfcn::nllfcn(const std::vector<pdf *> plist, const std::vector<dataset *> dlist):
-	fcn(plist, dlist)
+	fcn(plist, dlist),
+	m_arr_logsum(plist.size()),
+	m_arr_norm(plist.size(), -1)
 {
 }
 
@@ -33,8 +37,12 @@ double nllfcn::operator()(const std::vector<double> & par) const
 	for (size_t u = 0; u < m_pdflist.size(); ++u) {
 		pdf * p = m_pdflist[u];
 		dataset * d = m_datalist[u];
-		nll -= p->log_sum(d);
-		nll -= log(p->norm())*d->nevt();
+		if (p->updated() || m_arr_norm[u] < 0) {
+			m_arr_logsum[u] = p->log_sum(d);
+			m_arr_norm[u] = p->norm();
+		}
+		nll -= m_arr_logsum[u];
+		nll -= log(m_arr_norm[u])*d->nevt();
 	}
 
 	return nll;

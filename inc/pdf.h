@@ -34,14 +34,15 @@ class pdf
 		virtual double operator()(const double * x);
 		virtual void set_normset(dataset * normset);
 		virtual double sum(dataset * data);
+		virtual bool updated(); // check whether parameters' values are changed or not since last call
 
 	protected:
 		pdf();
-		bool updated();
+		virtual void update_lastvalue();
 		int normalize();
 
 	protected:
-		bool m_updated;
+		bool m_normalized;
 		size_t m_dim;
 		int m_status;
 		double m_norm;

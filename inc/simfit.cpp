@@ -1,8 +1,8 @@
 #include <iostream>
+#include "addpdf.h"
 #include "chi2fcn.h"
 #include "datahist.h"
 #include "dataset.h"
-#include "extpdf.h"
 #include "nllfcn.h"
 #include "pdf.h"
 #include "simfit.h"
@@ -21,7 +21,7 @@ simfit::~simfit()
 void simfit::chi2fit(bool minos_err)
 {
 	chi2fcn * chi2 = create_chi2();
-	if (chi2) chi2->minimize();
+	if (chi2) chi2->minimize(minos_err);
 }
 
 nllfcn * simfit::create_nll()
@@ -32,9 +32,9 @@ nllfcn * simfit::create_nll()
 
 chi2fcn * simfit::create_chi2()
 {
-	std::vector<extpdf *> plist;
+	std::vector<addpdf *> plist;
 	for (pdf * p: m_plist) {
-		extpdf * extp = dynamic_cast<extpdf *>(p);
+		addpdf * extp = dynamic_cast<addpdf *>(p);
 		if (!extp) {
 			std::cout << "[simfit] error: chi2fit only supports (extended pdf + hist data)" << std::endl;
 			return 0;
@@ -58,5 +58,5 @@ chi2fcn * simfit::create_chi2()
 void simfit::fit(bool minos_err)
 {
 	nllfcn * nll = create_nll();
-	nll->minimize();
+	nll->minimize(minos_err);
 }

@@ -1,9 +1,9 @@
 #include <iostream>
 #include <cmath>
 #include "Minuit2/MnUserParameters.h"
+#include "addpdf.h"
 #include "datahist.h"
 #include "dataset.h"
-#include "extpdf.h"
 #include "fcn.h"
 #include "pdf.h"
 #include "variable.h"
@@ -22,7 +22,7 @@ fcn::fcn(const std::vector<pdf *> plist, const std::vector<dataset *> dlist):
 	init();
 }
 
-fcn::fcn(const std::vector<extpdf *> plist, const std::vector<datahist *> dlist):
+fcn::fcn(const std::vector<addpdf *> plist, const std::vector<datahist *> dlist):
 	m_pdflist(plist.cbegin(), plist.cend()),
 	m_datalist(dlist.cbegin(), dlist.cend())
 {

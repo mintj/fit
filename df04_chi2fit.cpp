@@ -33,10 +33,8 @@ void df04_chi2fit()
 	variable w("w", 4, 0.3, 20);
 	breitwigner bw(m2, w);
 	
-	double ntot = data_mix.nevt();
-	variable n_gaus("n_gaus", 0.5*ntot, 0, ntot);
-	variable n_bw("n_bw", 0.5*ntot, 0, ntot);
-	extpdf sum({&gaus, &bw}, {&n_gaus, &n_bw}, &data_norm);
+	variable frac("frac", 0.5, 0, 1);
+	addpdf sum({&gaus, &bw}, {&frac}, &data_norm);
 	cout << "********************* uniform binning ********************" << endl;
 	sum.chi2fit(&data_mix);
 	cout << "********************* coarse binning ********************" << endl;

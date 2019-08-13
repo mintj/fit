@@ -1,18 +1,18 @@
 #include <iostream>
 #include <cmath>
+#include "addpdf.h"
 #include "chi2fcn.h"
 #include "datahist.h"
-#include "extpdf.h"
 #include "fcn.h"
 #include "pdf.h"
 #include "variable.h"
 
-chi2fcn::chi2fcn(extpdf * p, datahist * d):
+chi2fcn::chi2fcn(addpdf * p, datahist * d):
 	fcn(p, d)
 {
 }
 
-chi2fcn::chi2fcn(const std::vector<extpdf *> plist, const std::vector<datahist *> dlist):
+chi2fcn::chi2fcn(const std::vector<addpdf *> plist, const std::vector<datahist *> dlist):
 	fcn(plist, dlist)
 {
 }
@@ -31,16 +31,14 @@ double chi2fcn::operator()(const std::vector<double> & par) const
 	}
 
 	for (size_t u = 0; u < m_pdflist.size(); ++u) {
-		extpdf * p = dynamic_cast<extpdf *>(m_pdflist[u]);
-		datahist * d = dynamic_cast<datahist *>(m_datalist[u]);
-		
+		pdf * p = m_pdflist.at(u);
+		datahist * d = dynamic_cast<datahist *>(m_datalist.at(u));
+		double nevt = d->nevt();
 		for (size_t v = 0; v < d->size(); ++v) {
 			double nobs = d->weight(v);
 			double err_u = d->err_up(v);
 			double err_d = d->err_down(v);
-			double nfit = p->nevt() * p->integral(d->edge_lo(v), d->edge_hi(v), 0);
-			//std::cout << "bin " << v << "/" << d->size() << ": " << nobs << " " << err_u << " " << err_d << std::endl;
-			//std::cout << "\t" << p->nevt() << " " << p->integral(d->edge_lo(v), d->edge_hi(v), 0) << " " << nfit << " " << d->width(v) << std::endl;
+			double nfit = nevt * p->integral(d->edge_lo(v), d->edge_hi(v), 0);
 			if (nfit > nobs && err_u) {
 				chi2 += pow(nfit-nobs, 2)/err_u/err_u;
 			}
