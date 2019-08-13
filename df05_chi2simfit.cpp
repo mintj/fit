@@ -29,12 +29,14 @@ void df05_chi2simfit()
 	
 	variable m("m", 1, -10, 10);
 	variable w("w", 4, 0.3, 20);
-	gaussian gaus(m, w);
-	breitwigner bw(m, w);
+	gaussian gaus(m, w, &data_norm);
+	breitwigner bw(m, w, &data_norm);
 	
 	double n1 = data_gaus.nevt();
 	double n2 = data_bw.nevt();
 	
-	simfit comb({&gaus, &bw}, {&data_gaus, &data_bw});
+	simfit comb;
+	comb.add(&gaus, &data_gaus);
+	comb.add(&bw, &data_bw);
 	comb.chi2fit(true);
 }

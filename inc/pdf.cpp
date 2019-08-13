@@ -33,10 +33,22 @@ pdf::~pdf()
 {
 }
 
+void pdf::chi2fit(datahist * data, bool minos_err)
+{
+	chi2fcn * chi2 = create_chi2(data);
+	chi2->minimize(minos_err);
+}
+
 nllfcn * pdf::create_nll(dataset * data)
 {
 	m_nll.reset(new nllfcn(this, data));
 	return m_nll.get();
+}
+
+chi2fcn * pdf::create_chi2(datahist * data)
+{
+	m_chi2.reset(new chi2fcn(this, data));
+	return m_chi2.get();
 }
 
 void pdf::fit(dataset * data, bool minos_err)

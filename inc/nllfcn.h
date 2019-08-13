@@ -14,9 +14,10 @@ class variable;
 class nllfcn: public fcn
 {
 	public:
+		nllfcn() = default;
 		nllfcn(pdf * p, dataset * d);
-		nllfcn(const std::vector<pdf *> plist, const std::vector<dataset *> dlist);
 		virtual ~nllfcn();
+		void add(pdf * p, dataset * d);
 		virtual double operator()(const std::vector<double> & par) const;
 		virtual double Up() const { return 0.5; }
 

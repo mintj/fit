@@ -22,6 +22,8 @@ void df03_simfit()
 	gaussian gaus(m, w, &data_norm);
 	breitwigner bw(m, w, &data_norm);
 	
-	simfit comb({&gaus, &bw}, {&data_gaus, &data_bw});
+	simfit comb;
+	comb.add(&gaus, &data_gaus);
+	comb.add(&bw, &data_bw);
 	comb.fit(true);
 }

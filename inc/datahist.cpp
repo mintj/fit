@@ -2,7 +2,8 @@
 #include "datahist.h"
 
 datahist::datahist(TH1 * h):
-	dataset(h->GetNbinsX(), 1)
+	dataset(h->GetNbinsX(), 1),
+	m_hist(h)
 {
 	aquire_resourse();
 	if (!init_from_h1d(h)) release_resourse();

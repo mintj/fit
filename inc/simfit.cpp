@@ -1,5 +1,4 @@
 #include <iostream>
-#include "addpdf.h"
 #include "chi2fcn.h"
 #include "datahist.h"
 #include "dataset.h"
@@ -8,14 +7,18 @@
 #include "simfit.h"
 #include "variable.h"
 
-simfit::simfit(const std::vector<pdf *> & pdflist, const std::vector<dataset *> & datalist):
-	m_plist(pdflist),
-	m_dlist(datalist)
+simfit::simfit()
 {
 }
 
 simfit::~simfit()
 {
+}
+
+void simfit::add(pdf * p, dataset * d)
+{
+	m_plist.push_back(p);
+	m_dlist.push_back(d);
 }
 
 void simfit::chi2fit(bool minos_err)
@@ -26,37 +29,30 @@ void simfit::chi2fit(bool minos_err)
 
 nllfcn * simfit::create_nll()
 {
-	m_nll.reset(new nllfcn(m_plist, m_dlist));
+	m_nll.reset(new nllfcn);
+	for (size_t u = 0; u < m_plist.size(); ++u) {
+		m_nll.get()->add(m_plist[u], m_dlist[u]);
+	}
 	return m_nll.get();
 }
 
 chi2fcn * simfit::create_chi2()
 {
-	std::vector<addpdf *> plist;
-	for (pdf * p: m_plist) {
-		addpdf * extp = dynamic_cast<addpdf *>(p);
-		if (!extp) {
-			std::cout << "[simfit] error: chi2fit only supports (extended pdf + hist data)" << std::endl;
+	m_chi2.reset(new chi2fcn);
+	for (size_t u = 0; u < m_plist.size(); ++u) {
+		datahist * d = dynamic_cast<datahist *>(m_dlist[u]);
+		if (!d) {
+			std::cout << "[simfit] error: chi2fit are restricted to datahist only" << std::endl;
 			return 0;
 		}
-		plist.push_back(extp);
+		m_chi2.get()->add(m_plist[u], d);
 	}
-
-	std::vector<datahist *> dlist;
-	for (dataset * d: m_dlist) {
-		datahist * dh = dynamic_cast<datahist *>(d);
-		if (!dh) {
-			std::cout << "[simfit] error: chi2fit only supports (extended pdf + hist data)" << std::endl;
-			return 0;
-		}
-		dlist.push_back(dh);
-	}
-	m_chi2.reset(new chi2fcn(plist, dlist));
 	return m_chi2.get();
 }
 
 void simfit::fit(bool minos_err)
 {
 	nllfcn * nll = create_nll();
+	cout << nll->operator()({1,2,3,4,5,6,7}) << endl;
 	nll->minimize(minos_err);
 }

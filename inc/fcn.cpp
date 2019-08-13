@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cmath>
 #include "Minuit2/MnUserParameters.h"
-#include "addpdf.h"
 #include "datahist.h"
 #include "dataset.h"
 #include "fcn.h"
@@ -12,39 +11,18 @@ fcn::fcn(pdf * p, dataset * d):
 	m_pdflist({p}),
 	m_datalist({d})
 {
-	init();
-}
-
-fcn::fcn(const std::vector<pdf *> plist, const std::vector<dataset *> dlist):
-	m_pdflist(plist.cbegin(), plist.cend()),
-	m_datalist(dlist.cbegin(), dlist.cend())
-{
-	init();
-}
-
-fcn::fcn(const std::vector<addpdf *> plist, const std::vector<datahist *> dlist):
-	m_pdflist(plist.cbegin(), plist.cend()),
-	m_datalist(dlist.cbegin(), dlist.cend())
-{
-	init();
+	update_varlist(p, d);
 }
 
 fcn::~fcn()
 {
 }
 
-void fcn::init()
+void fcn::add(pdf * p, dataset * d)
 {
-	for (pdf * p: m_pdflist) {
-		for (variable * v: p->get_vars()) {
-			if (!v->constant()) {
-				if (m_vcount.find(v) == m_vcount.end()) {
-					m_varlist.push_back(v);
-				}
-				++m_vcount[v];
-			}
-		}
-	}
+	m_pdflist.push_back(p);
+	m_datalist.push_back(d);
+	update_varlist(p, d);
 }
 
 void fcn::minimize(bool minos_err)
@@ -72,6 +50,18 @@ void fcn::minimize(bool minos_err)
 			std::cout << name << " " << get_var(u)->value() << " " << e.first << " " << e.second << std::endl;
 			v->set_err_down(e.first);
 			v->set_err_up(e.second);
+		}
+	}
+}
+
+void fcn::update_varlist(pdf * p, dataset * d)
+{
+	for (variable * v: p->get_vars()) {
+		if (!v->constant()) {
+			if (m_vcount.find(v) == m_vcount.end()) {
+				m_varlist.push_back(v);
+			}
+			++m_vcount[v];
 		}
 	}
 }

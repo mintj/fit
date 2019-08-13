@@ -20,18 +20,6 @@ addpdf::~addpdf()
 {
 }
 
-void addpdf::chi2fit(datahist * data, bool minos_err)
-{
-	chi2fcn * chi2 = create_chi2(data);
-	chi2->minimize(minos_err);
-}
-
-chi2fcn * addpdf::create_chi2(datahist * data)
-{
-	m_chi2.reset(new chi2fcn(this, data));
-	return m_chi2.get();
-}
-
 double addpdf::evaluate(const double * x)
 {
 	double v = 0;
@@ -65,38 +53,6 @@ void addpdf::init()
 		m_lastvalue.push_back(v->value()-0.1);
 	}
 }
-
-//double addpdf::integral(double a, double b, int n)
-//{
-//	//double intval = 0;
-//	//double ftot = 0;
-//	//for (size_t u = 0; u < m_plist.size(); ++u) {
-//	//	double f;
-//	//	if (u < m_flist.size()) {
-//	//		f = m_flist.at(u)-value();
-//	//		ftot += f;
-//	//	}
-//	//	else {
-//	//		f = 1-ftot;
-//	//	}
-//	//	intval += f * m_plist.at(u)->integral(a, b, n);
-//	//}
-//	//return intval;
-//}
-
-//double addpdf::log_sum(dataset * data)
-//{
-//	return pdf::log_sum(data);// + log(TMath::Poisson(data->nevt(), nevt()));
-//}
-
-//double addpdf::nevt()
-//{
-//	double ntot = 0;
-//	for (size_t u = 0; u < m_flist.size(); ++u) {
-//		ntot += m_flist.at(u)->value();
-//	}
-//	return ntot;
-//}
 
 void addpdf::set_normset(dataset * normset)
 {

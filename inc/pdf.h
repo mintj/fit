@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 
+class chi2fcn;
 class datahist;
 class dataset;
 class nllfcn;
@@ -17,6 +18,8 @@ class pdf
 		pdf(const pdf & p) = default;
 		pdf & operator=(const pdf & p) = default;
 		virtual ~pdf();
+		void chi2fit(datahist * data, bool minos_err = false);
+		chi2fcn * create_chi2(datahist * data);
 		nllfcn * create_nll(dataset * data);
 		size_t dim() { return m_dim; }
 		virtual double evaluate(const double * x) = 0;
@@ -30,6 +33,7 @@ class pdf
 		virtual double log_sum(dataset * data);
 		virtual double nevt() { return 1; }
 		virtual double norm();
+		dataset * normset() { return m_normset; }
 		size_t npar() { return m_varlist.size(); }
 		virtual double operator()(const double * x);
 		virtual void set_normset(dataset * normset);
@@ -48,6 +52,7 @@ class pdf
 		double m_norm;
 		std::vector<double> m_lastvalue;
 		std::vector<variable *> m_varlist;
+		std::shared_ptr<chi2fcn> m_chi2;
 		std::shared_ptr<nllfcn> m_nll;
 		dataset * m_normset;
 };

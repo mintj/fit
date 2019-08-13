@@ -14,26 +14,25 @@ nllfcn::nllfcn(pdf * p, dataset * d):
 {
 }
 
-nllfcn::nllfcn(const std::vector<pdf *> plist, const std::vector<dataset *> dlist):
-	fcn(plist, dlist),
-	m_arr_logsum(plist.size()),
-	m_arr_norm(plist.size(), -1)
-{
-}
-
 nllfcn::~nllfcn()
 {
 }
 
+void nllfcn::add(pdf * p, dataset * d)
+{
+	fcn::add(p, d);
+	m_arr_logsum.push_back(1);
+	m_arr_norm.push_back(-1);
+}
+
 double nllfcn::operator()(const std::vector<double> & par) const
 {
-	double nll = 0;
-
 	for (size_t u = 0; u < m_varlist.size(); ++u) {
 		m_varlist[u]->set_value(par[u]);
 		//cout << u << " " << par[u] << endl;
 	}
 
+	double nll = 0;
 	for (size_t u = 0; u < m_pdflist.size(); ++u) {
 		pdf * p = m_pdflist[u];
 		dataset * d = m_datalist[u];
@@ -44,6 +43,5 @@ double nllfcn::operator()(const std::vector<double> & par) const
 		nll -= m_arr_logsum[u];
 		nll -= log(m_arr_norm[u])*d->nevt();
 	}
-
 	return nll;
 }
