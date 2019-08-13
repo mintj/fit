@@ -155,11 +155,13 @@ double pdf::sum(dataset * data)
 
 bool pdf::updated()
 {
+	cout << "check update status: [" << this << ", " << m_varlist[0]->name() << "(" << m_varlist.at(0)->value() << ", " << m_lastvalue.at(0) << ")] " << m_updated;
 	for (size_t u = 0; u < m_varlist.size(); ++u) {
 		if (m_varlist.at(u)->value() != m_lastvalue.at(u)) {
 			m_lastvalue[u] = m_varlist.at(u)->value();
 			m_updated |= true;
 		}
 	}
+	cout << " --> " << m_updated << endl;
 	return m_updated;
 }
