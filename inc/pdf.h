@@ -14,16 +14,16 @@ class variable;
 class pdf
 {
 	public:
-		pdf(size_t dim, const std::vector<variable *> & var, dataset * normset = 0);
+		pdf(size_t dim, const std::vector<variable *> & var, dataset & normset);
 		pdf(const pdf & p) = default;
 		pdf & operator=(const pdf & p) = default;
 		virtual ~pdf();
-		void chi2fit(datahist * data, bool minos_err = false);
+		void chi2fit(datahist & data, bool minos_err = false);
 		chi2fcn * create_chi2(datahist * data);
 		nllfcn * create_nll(dataset * data);
 		size_t dim() { return m_dim; }
 		virtual double evaluate(const double * x) = 0;
-		void fit(dataset * data, bool minos_err = false);
+		void fit(dataset & data, bool minos_err = false);
 		double get_lastvalue(int n);
 		std::vector<double> & get_lastvalues();
 		double get_par(int n);
@@ -36,7 +36,7 @@ class pdf
 		dataset * normset() { return m_normset; }
 		size_t npar() { return m_varlist.size(); }
 		virtual double operator()(const double * x);
-		virtual void set_normset(dataset * normset);
+		virtual void set_normset(dataset & normset);
 		virtual double sum(dataset * data);
 		virtual bool updated(); // check whether parameters' values are changed or not since last call
 

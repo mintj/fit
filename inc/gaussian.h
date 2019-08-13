@@ -9,7 +9,7 @@ class variable;
 class gaussian: public pdf
 {
 	public:
-		gaussian(variable & m, variable & s, dataset * normset = 0);
+		gaussian(variable & m, variable & s, dataset & normset);
 		virtual ~gaussian();
 		virtual double evaluate(const double * x);
 };

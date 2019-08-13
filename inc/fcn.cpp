@@ -35,8 +35,9 @@ void fcn::minimize(bool minos_err)
 	ROOT::Minuit2::MnMigrad migrad(*this, upar);
 	ROOT::Minuit2::FunctionMinimum min = migrad();
 	for (variable * v: get_var_list()) {
-		v->set_value(upar.Value(v->name()));
-		v->set_err(upar.Error(v->name()));
+		// seems that fit value is automatically set by minuit
+		v->set_value(min.UserState().Value(v->name()));
+		v->set_err(min.UserState().Error(v->name()));
 	}
 	std::cout << min << std::endl;
 

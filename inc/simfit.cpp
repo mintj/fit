@@ -15,10 +15,10 @@ simfit::~simfit()
 {
 }
 
-void simfit::add(pdf * p, dataset * d)
+void simfit::add(pdf & p, dataset & d)
 {
-	m_plist.push_back(p);
-	m_dlist.push_back(d);
+	m_plist.push_back(&p);
+	m_dlist.push_back(&d);
 }
 
 void simfit::chi2fit(bool minos_err)
@@ -53,6 +53,5 @@ chi2fcn * simfit::create_chi2()
 void simfit::fit(bool minos_err)
 {
 	nllfcn * nll = create_nll();
-	cout << nll->operator()({1,2,3,4,5,6,7}) << endl;
 	nll->minimize(minos_err);
 }

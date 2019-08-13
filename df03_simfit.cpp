@@ -19,11 +19,11 @@ void df03_simfit()
 	
 	variable m("m", 1, -10, 10);
 	variable w("w", 4, 0.3, 20);
-	gaussian gaus(m, w, &data_norm);
-	breitwigner bw(m, w, &data_norm);
+	gaussian gaus(m, w, data_norm);
+	breitwigner bw(m, w, data_norm);
 	
 	simfit comb;
-	comb.add(&gaus, &data_gaus);
-	comb.add(&bw, &data_bw);
+	comb.add(gaus, data_gaus);
+	comb.add(bw, data_bw);
 	comb.fit(true);
 }

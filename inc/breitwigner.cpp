@@ -3,7 +3,7 @@
 #include "dataset.h"
 #include "breitwigner.h" 
 
-breitwigner::breitwigner(variable & m, variable & w, dataset * normset):
+breitwigner::breitwigner(variable & m, variable & w, dataset & normset):
 	pdf(1, {&m, &w}, normset)
 {
 }

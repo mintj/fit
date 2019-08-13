@@ -15,7 +15,7 @@ class simfit
 	public:
 		simfit();
 		virtual ~simfit();
-		void add(pdf * p, dataset * d);
+		void add(pdf & p, dataset & d);
 		void chi2fit(bool minos_err = false);
 		nllfcn * create_nll();
 		chi2fcn * create_chi2();

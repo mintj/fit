@@ -27,16 +27,16 @@ void df04_chi2fit()
 	
 	variable m1("m1", 1, -10, 10);
 	variable s("s", 4, 0.3, 20);
-	gaussian gaus(m1, s);
+	gaussian gaus(m1, s, data_norm);
 	
 	variable m2("m2", 1, -10, 10);
 	variable w("w", 4, 0.3, 20);
-	breitwigner bw(m2, w);
+	breitwigner bw(m2, w, data_norm);
 	
 	variable frac("frac", 0.5, 0, 1);
-	addpdf sum({&gaus, &bw}, {&frac}, &data_norm);
+	addpdf sum({&gaus, &bw}, {&frac});
 	cout << "********************* uniform binning ********************" << endl;
-	sum.chi2fit(&data_mix);
+	sum.chi2fit(data_mix);
 	cout << "********************* coarse binning ********************" << endl;
-	sum.chi2fit(&data_mix2);
+	sum.chi2fit(data_mix2);
 }

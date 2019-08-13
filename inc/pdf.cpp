@@ -12,16 +12,17 @@
 pdf::pdf():
 	m_norm(1),
 	m_status(-1),
-	m_normalized(false)
+	m_normalized(false),
+	m_normset(0)
 {
 }
 
-pdf::pdf(size_t dim, const std::vector<variable *> & var, dataset * normset):
+pdf::pdf(size_t dim, const std::vector<variable *> & var, dataset & normset):
 	m_dim(dim),
 	m_norm(1),
 	m_status(-1),
 	m_normalized(false),
-	m_normset(normset)
+	m_normset(&normset)
 {
 	for (variable * v: var) {
 		m_varlist.push_back(v);
@@ -33,9 +34,9 @@ pdf::~pdf()
 {
 }
 
-void pdf::chi2fit(datahist * data, bool minos_err)
+void pdf::chi2fit(datahist & data, bool minos_err)
 {
-	chi2fcn * chi2 = create_chi2(data);
+	chi2fcn * chi2 = create_chi2(&data);
 	chi2->minimize(minos_err);
 }
 
@@ -51,9 +52,9 @@ chi2fcn * pdf::create_chi2(datahist * data)
 	return m_chi2.get();
 }
 
-void pdf::fit(dataset * data, bool minos_err)
+void pdf::fit(dataset & data, bool minos_err)
 {
-	nllfcn * nll = create_nll(data);
+	nllfcn * nll = create_nll(&data);
 	nll->minimize(minos_err);
 }
 
@@ -148,10 +149,10 @@ double pdf::operator()(const double * x)
 	return norm()*evaluate(x);
 }
 
-void pdf::set_normset(dataset * normset)
+void pdf::set_normset(dataset & normset)
 {
-	if (m_normset != normset) {
-		m_normset = normset;
+	if (m_normset != &normset) {
+		m_normset = &normset;
 		m_normalized = false;
 	}
 }

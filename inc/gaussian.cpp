@@ -3,7 +3,7 @@
 #include "dataset.h"
 #include "gaussian.h" 
 
-gaussian::gaussian(variable & m, variable & s, dataset * normset):
+gaussian::gaussian(variable & m, variable & s, dataset & normset):
 	pdf(1, {&m, &s}, normset)
 {
 }

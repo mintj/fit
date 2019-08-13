@@ -18,17 +18,17 @@ void df06_weightedfit()
 	cout << "********************* breit wigner *******************" << endl;
 	variable m1("m1", 1, -10, 10);
 	variable w("w", 4, 0.01, 20);
-	breitwigner bw(m1, w, &data_norm);
-	bw.fit(&data_bw, true);
+	breitwigner bw(m1, w, data_norm);
+	bw.fit(data_bw, true);
 
 	cout << "********************* gaussian ********************" << endl;
 	variable m2("m2", 1, -10, 10);
 	variable s("s", 4, 0.3, 20);
-	gaussian gaus(m2, s, &data_norm);
-	gaus.fit(&data_gaus);
+	gaussian gaus(m2, s, data_norm);
+	gaus.fit(data_gaus);
 
 	cout << "********************* add fit ********************" << endl;
 	variable frac("frac", 0.5, 0, 1);
-	addpdf sum({&bw, &gaus}, {&frac}, &data_norm);
-	sum.fit(&data_mix);
+	addpdf sum({&bw, &gaus}, {&frac});
+	sum.fit(data_mix, true);
 }

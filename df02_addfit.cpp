@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void df02_extfit()
+void df02_addfit()
 {
 	TFile * f1 = TFile::Open("test-data/flat.root");
 	TFile * f2 = TFile::Open("test-data/mix.root");
@@ -17,16 +17,18 @@ void df02_extfit()
 	
 	variable m1("m1", 1, -10, 10);
 	variable s("s", 4, 0.3, 20);
-	gaussian gaus(m1, s);
+	gaussian gaus(m1, s, data_norm);
 	
 	variable m2("m2", 1, -10, 10);
 	variable w("w", 4, 0.3, 20);
-	breitwigner bw(m2, w);
+	breitwigner bw(m2, w, data_norm);
 	
-	//double ntot = data_mix.nevt();
-	//variable n_gaus("n_gaus", 0.5*ntot, 0, ntot);
-	//variable n_bw("n_bw", 0.5*ntot, 0, ntot);
 	variable frac("frac", 0.5, 0, 1);
-	addpdf sum({&gaus, &bw}, {&frac}, &data_norm);
-	sum.fit(&data_mix, false);
+	addpdf sum({&gaus, &bw}, {&frac});
+	sum.fit(data_mix, true);
+
+	std::cout << "\n****************************************" << std::endl;
+	std::cout << "integral of gaus on (1, 2) = " << gaus.integral(1, 2) << std::endl;
+	std::cout << "integral of bw on (1, 2) = " << bw.integral(1, 2) << std::endl;
+	std::cout << "integral of sum on (1, 2) = " << sum.integral(1, 2) << std::endl;
 }
