@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <map>
-#include "TMath.h"
 #include "Minuit2/FCNBase.h"
 #include "Minuit2/FunctionMinimum.h"
 #include "Minuit2/MnMigrad.h"

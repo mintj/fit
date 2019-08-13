@@ -2,7 +2,6 @@
 #define PDF_H__
 
 #include <vector>
-#include <map>
 #include <memory>
 
 class chi2fcn;
