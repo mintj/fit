@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include "Minuit2/MnPrint.h"
 #include "Minuit2/MnUserParameters.h"
 #include "datahist.h"
 #include "dataset.h"
