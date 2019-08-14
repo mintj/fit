@@ -17,14 +17,14 @@ pdf::pdf():
 {
 }
 
-pdf::pdf(size_t dim, const std::vector<variable *> & var, dataset & normset):
+pdf::pdf(size_t dim, const std::vector<variable *> & vlist, dataset & normset):
 	m_dim(dim),
 	m_norm(1),
 	m_status(-1),
 	m_normalized(false),
 	m_normset(&normset)
 {
-	for (variable * v: var) {
+	for (variable * v: vlist) {
 		m_varlist.push_back(v);
 		m_lastvalue.push_back(v->value()-0.1); // make sure the first call of updated() will return true
 	}

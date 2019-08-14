@@ -73,8 +73,8 @@ void chi2fcn::update_data(pdf * p, datahist * d)
 	for (size_t v = 0; v < ns->size(); ++v) {
 		double x = ns->at(v)[0];
 		int bin = d->find_bin(x);
-		if (bin > 0 && bin <= d->size()) {
-			vvp[bin-1].push_back(ns->at(v));
+		if (bin >= 0 && bin < d->size()) {
+			vvp[bin].push_back(ns->at(v));
 		}
 	}
 	m_data.push_back(std::move(vvp));

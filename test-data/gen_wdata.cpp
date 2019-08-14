@@ -61,7 +61,6 @@ void write_data(const char * name, int nevt, const vector<double> & par)
 		x = gen_flat();
 		w1 = bw(x, par[0], par[1]);
 		w2 = gaus(x, par[2], par[3]);
-		//w3 = par[4]*w1 + (1-par[4])*w2;
 		w3 = frac*w1 + (1-frac)*w2;
 		t->Fill();
 	}

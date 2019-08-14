@@ -48,7 +48,8 @@ void fcn::minimize(bool minos_err)
 			std::pair<double, double> e = minos(u);
 			variable * v = get_var(u);
 			const char * name = v->name();
-			std::cout << name << " " << get_var(u)->value() << " " << e.first << " " << e.second << std::endl;
+			std::cout << name << " " << min.UserState().Value(v->name()) << " " << e.first << " " << e.second << std::endl;
+			v->set_value(min.UserState().Value(v->name()));
 			v->set_err_down(e.first);
 			v->set_err_up(e.second);
 		}

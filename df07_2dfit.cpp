@@ -35,16 +35,16 @@ void df07_2dfit()
 	TFile * f = TFile::Open("test-data/weighted_2d.root");
 	TTree * t = (TTree *)f->Get("t");
 
-	dataset data_norm(t, {"x", "y"});
-	dataset data_gaus(t, {"x", "y"}, "w");
+	dataset data_2d_norm(t, {"x", "y"});
+	dataset data_2d(t, {"x", "y"}, "w1");
 	
 	variable m1("m1", 1, -10, 10);
 	variable s1("s1", 4, 0.1, 20);
 	variable m2("m2", 1, -10, 10);
 	variable s2("s2", 4, 0.1, 20);
 	variable rho("rho", 0, -0.999, 0.999);
-	gaussian2d gaus2d(m1, s1, m2, s2, rho, data_norm);
-	gaus2d.fit(data_gaus);
+	gaussian2d gaus2d(m1, s1, m2, s2, rho, data_2d_norm);
+	gaus2d.fit(data_2d);
 	
 	std::cout << "***********************************************" << std::endl;
 	double x1 = m1.value()-s1.value();

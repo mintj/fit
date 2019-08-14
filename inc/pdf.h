@@ -13,7 +13,7 @@ class variable;
 class pdf
 {
 	public:
-		pdf(size_t dim, const std::vector<variable *> & var, dataset & normset);
+		pdf(size_t dim, const std::vector<variable *> & vlist, dataset & normset);
 		pdf(const pdf & p) = default;
 		pdf & operator=(const pdf & p) = default;
 		virtual ~pdf();
