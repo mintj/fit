@@ -12,25 +12,32 @@
 pdf::pdf():
 	m_norm(1),
 	m_status(-1),
-	m_updated(true)
+	m_normalized(false),
+	m_normset(0)
 {
 }
 
-pdf::pdf(size_t dim, const std::vector<variable *> & var, dataset * normset):
+pdf::pdf(size_t dim, const std::vector<variable *> & vlist, dataset & normset):
 	m_dim(dim),
 	m_norm(1),
 	m_status(-1),
-	m_updated(true),
-	m_normset(normset)
+	m_normalized(false),
+	m_normset(&normset)
 {
-	for (variable * v: var) {
+	for (variable * v: vlist) {
 		m_varlist.push_back(v);
-		m_lastvalue.push_back(v->value());
+		m_lastvalue.push_back(v->value()-0.1); // make sure the first call of updated() will return true
 	}
 }
 
 pdf::~pdf()
 {
+}
+
+void pdf::chi2fit(datahist & data, bool minos_err)
+{
+	chi2fcn * chi2 = create_chi2(&data);
+	chi2->minimize(minos_err);
 }
 
 nllfcn * pdf::create_nll(dataset * data)
@@ -39,9 +46,15 @@ nllfcn * pdf::create_nll(dataset * data)
 	return m_nll.get();
 }
 
-void pdf::fit(dataset * data, bool minos_err)
+chi2fcn * pdf::create_chi2(datahist * data)
 {
-	nllfcn * nll = create_nll(data);
+	m_chi2.reset(new chi2fcn(this, data));
+	return m_chi2.get();
+}
+
+void pdf::fit(dataset & data, bool minos_err)
+{
+	nllfcn * nll = create_nll(&data);
 	nll->minimize(minos_err);
 }
 
@@ -105,7 +118,8 @@ double pdf::norm()
 	m_status = normalize();
 
 	if (m_status) {
-		std::cout << "[pdf] error: pdf not normalized (status = " << m_status << ")" << std::endl;
+		std::cout << "[pdf] error: pdf not normalized, status = " << m_status;
+		std::cout << " (-1: null normset | 0: all okay | 1: integral on normset is 0)" << std::endl;
 	}
 
 	return m_norm;
@@ -113,8 +127,8 @@ double pdf::norm()
 
 int pdf::normalize()
 {
-	if (updated()) {
-		m_updated = false;
+	if (!m_normalized || updated()) {
+		m_normalized = false;
 		m_norm = 1;
 		if (!m_normset || !m_normset->nevt()) return -1;
 
@@ -122,6 +136,8 @@ int pdf::normalize()
 		if (s == 0) return 1;
 		else {
 			m_norm = m_normset->nevt()/s;
+			m_normalized = true;
+			update_lastvalue();
 			return 0;
 		}
 	}
@@ -133,11 +149,11 @@ double pdf::operator()(const double * x)
 	return norm()*evaluate(x);
 }
 
-void pdf::set_normset(dataset * normset)
+void pdf::set_normset(dataset & normset)
 {
-	if (m_normset != normset) {
-		m_normset = normset;
-		m_updated = true;
+	if (m_normset != &normset) {
+		m_normset = &normset;
+		m_normalized = false;
 	}
 }
 
@@ -153,13 +169,19 @@ double pdf::sum(dataset * data)
 	return s;
 }
 
+void pdf::update_lastvalue()
+{
+	for (size_t u = 0; u < m_varlist.size(); ++u) {
+		m_lastvalue[u] = m_varlist.at(u)->value();
+	}
+}
+
 bool pdf::updated()
 {
 	for (size_t u = 0; u < m_varlist.size(); ++u) {
 		if (m_varlist.at(u)->value() != m_lastvalue.at(u)) {
-			m_lastvalue[u] = m_varlist.at(u)->value();
-			m_updated |= true;
+			return true;
 		}
 	}
-	return m_updated;
+	return false;
 }

@@ -55,13 +55,12 @@ void write_data(const char * name, int nevt, const vector<double> & par)
 	t->Branch("w3", &w3, "w3/D");
 	double int1 = int_bw(par[0], par[1]);
 	double int2 = int_gaus(par[2], par[3]);
-	double frac = par[4]*int2/(1+par[4])/int1;
+	double frac = par[4]*int2/((1-par[4])*int1+par[4]*int2);
 	cout << par[4] << " " << frac << endl;
 	for (int u = 0; u < nevt; ++u) {
 		x = gen_flat();
 		w1 = bw(x, par[0], par[1]);
 		w2 = gaus(x, par[2], par[3]);
-		//w3 = par[4]*w1 + (1-par[4])*w2;
 		w3 = frac*w1 + (1-frac)*w2;
 		t->Fill();
 	}

@@ -5,25 +5,15 @@
 
 using namespace std;
 
-void df04_chi2fit()
+void df02_addfit()
 {
 	TFile * f1 = TFile::Open("test-data/flat.root");
 	TFile * f2 = TFile::Open("test-data/mix.root");
 	TTree * t_flat = (TTree *)f1->Get("t");
 	TTree * t_mix  = (TTree *)f2->Get("t");
 
-	TH1F * h1 = new TH1F("h1", "", 40, -10, 10);
-	t_mix->Draw("x>>h1", "");
-	
-	double binning[] = {-10, -8, -6, -5, -4, -3, -2, -1, 0, 0.5,
-	                    1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6,
-	                    7, 8, 9, 10};
-	TH1F * h2 = new TH1F("h2", "", 23, binning);
-	t_mix->Draw("x>>h2", "");
-
 	dataset data_norm(t_flat, {"x"});
-	datahist data_mix(h1);
-	datahist data_mix2(h2);
+	dataset data_mix(t_mix, {"x"});
 	
 	variable m1("m1", 1, -10, 10);
 	variable s("s", 4, 0.3, 20);
@@ -35,8 +25,10 @@ void df04_chi2fit()
 	
 	variable frac("frac", 0.5, 0, 1);
 	addpdf sum({&gaus, &bw}, {&frac});
-	cout << "********************* uniform binning ********************" << endl;
-	sum.chi2fit(data_mix);
-	cout << "********************* coarse binning ********************" << endl;
-	sum.chi2fit(data_mix2);
+	sum.fit(data_mix, true);
+
+	std::cout << "\n****************************************" << std::endl;
+	std::cout << "integral of gaus on (1, 2) = " << gaus.integral(1, 2) << std::endl;
+	std::cout << "integral of bw on (1, 2) = " << bw.integral(1, 2) << std::endl;
+	std::cout << "integral of sum on (1, 2) = " << sum.integral(1, 2) << std::endl;
 }

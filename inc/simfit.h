@@ -4,18 +4,18 @@
 #include <vector>
 #include <memory>
 
+class addpdf;
 class chi2fcn;
-class datahist;
 class dataset;
-class extpdf;
 class nllfcn;
 class pdf;
 
 class simfit
 {
 	public:
-		simfit(const std::vector<pdf *> & pdflist, const std::vector<dataset *> & datalist);
+		simfit();
 		virtual ~simfit();
+		void add(pdf & p, dataset & d);
 		void chi2fit(bool minos_err = false);
 		nllfcn * create_nll();
 		chi2fcn * create_chi2();

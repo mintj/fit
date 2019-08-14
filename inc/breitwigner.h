@@ -9,7 +9,7 @@ class variable;
 class breitwigner: public pdf
 {
 	public:
-		breitwigner(variable & m, variable & s, dataset * normset = 0);
+		breitwigner(variable & m, variable & s, dataset & normset);
 		virtual ~breitwigner();
 		virtual double evaluate(const double * x);
 };

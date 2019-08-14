@@ -7,17 +7,23 @@
 #include "fcn.h"
 
 class datahist;
-class extpdf;
 class variable;
 
 class chi2fcn: public fcn
 {
 	public:
-		chi2fcn(extpdf * p, datahist * d);
-		chi2fcn(const std::vector<extpdf *> plist, const std::vector<datahist *> dlist);
+		chi2fcn() = default;
+		chi2fcn(pdf * p, datahist * d);
 		virtual ~chi2fcn();
+		void add(pdf * p, datahist * d);
 		virtual double operator()(const std::vector<double> & par) const;
 		virtual double Up() const { return 1.0; }
+
+	protected:
+		void update_data(pdf * p, datahist * d);
+
+	protected:
+		mutable std::vector<std::vector<std::vector<double *>>> m_data;
 };
 
 #endif
