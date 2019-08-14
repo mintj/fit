@@ -2,10 +2,10 @@
 #include "projpdf.h"
 #include "variable.h"
 		
-projpdf::projpdf(const std::vector<variable *> & vlist, dataset & normset, size_t projdim, size_t nbin, double lo, double hi):
+projpdf::projpdf(const std::vector<variable *> & vlist, dataset & normset, size_t pdim, size_t nbin, double lo, double hi):
 	pdf(1, vlist, normset)
 {
-	assert(projdim < normset.dim() && nbin > 0);
+	assert(pdim < normset.dim() && nbin > 0);
 	double xlo = (lo < hi) ? lo : hi;
 	double xhi = (lo < hi) ? hi : lo;
 	double step = (xhi-xlo)/nbin;
@@ -14,13 +14,13 @@ projpdf::projpdf(const std::vector<variable *> & vlist, dataset & normset, size_
 		m_bin_data.push_back(std::vector<double>(0));
 		m_bin_weight.push_back(std::vector<double>(0));
 	}
-	init(projdim);
+	init(pdim);
 }
 
-projpdf::projpdf(const std::vector<variable *> & vlist, dataset & normset, size_t projdim, size_t nbin, const double * binning):
+projpdf::projpdf(const std::vector<variable *> & vlist, dataset & normset, size_t pdim, size_t nbin, const double * binning):
 	pdf(1, vlist, normset)
 {
-	assert(projdim < normset.dim() && nbin > 0);
+	assert(pdim < normset.dim() && nbin > 0);
 	for (size_t u = 0; u < nbin; ++u) {
 		m_binning.push_back(binning[u]);
 		if (u > 0) {
@@ -28,7 +28,7 @@ projpdf::projpdf(const std::vector<variable *> & vlist, dataset & normset, size_
 			m_bin_weight.push_back(std::vector<double>(0));
 		}
 	}
-	init(projdim);
+	init(pdim);
 }
 
 projpdf::~projpdf()
@@ -57,10 +57,10 @@ int projpdf::find_bin(double x)
 	return -1;
 }
 
-void projpdf::init(size_t projdim)
+void projpdf::init(size_t pdim)
 {
 	for (size_t u = 0; u < m_normset->size(); ++u) {
-		double x = m_normset->at(u)[projdim];
+		double x = m_normset->at(u)[pdim];
 		int bin = find_bin(x);
 		if (bin >= 0) {
 			m_bin_data[bin].push_back(x);
