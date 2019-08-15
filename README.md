@@ -121,7 +121,7 @@ It works within the ROOT enviroment, while its interface is designed to look lik
     
   _abstract base of projection pdf, to use this class user must complete the 'func_weight' method, which is similar to the 'evaluate' method of base pdf_
   
-  _another thing worthy be mentioned is that 'draw' method is re-implemented in 'projpdf', for the same reason as 'draw' of 'datahist' is re-implemented from its origin version in 'dataset'
+  _another thing worthy be mentioned is that 'draw' method is re-implemented in 'projpdf', for the same reason as 'draw' of 'datahist' is re-implemented from its origin version in 'dataset'_
 
     projpdf::projpdf(const std::vector<variable *> & vlist, dataset & normset, size_t pdim, size_t nbin, double lo, double hi);
     
