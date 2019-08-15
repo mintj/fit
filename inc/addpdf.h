@@ -12,7 +12,12 @@ class addpdf: public pdf
 	public:
 		addpdf(const std::vector<pdf *> plist, const std::vector<variable *> flist);
 		virtual ~addpdf();
+		
 		void calculate_frac();
+		void draw_comp(TH1 * h, size_t n, TH1 * hnorm = 0, const char * option = "hist same");
+		void draw_comp(TH2 * h, size_t n, TH2 * hnorm = 0, const char * option = "hist same");
+		
+		// override pdf
 		virtual double evaluate(const double * x);
 		virtual double integral(double a, double b, int n = 0);
 		virtual double norm() { return 1; }

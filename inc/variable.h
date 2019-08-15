@@ -10,6 +10,7 @@ class variable
 		variable(const char * name, double d, double u);
 		variable(const char * name, double v, double d, double u);
 		virtual ~variable();
+		
 		bool constant() { return m_constant; }
 		double err() { return m_err; }
 		double err_down() { return m_err_down; }

@@ -11,7 +11,7 @@ class bw_proj: public projpdf
 		bw_proj(variable & m, variable & w, dataset & normset, size_t projdim, size_t nbin, double lo, double hi);
 		bw_proj(variable & m, variable & w, dataset & normset, size_t projdim, size_t nbin, const double * binning);
 		virtual ~bw_proj() {}
-		virtual double func_weight(double x);
+		virtual double func_weight(const double * x);
 };
 
 bw_proj::bw_proj(variable & m, variable & w, dataset & normset, size_t projdim, size_t nbin, double lo, double hi):
@@ -24,11 +24,11 @@ bw_proj::bw_proj(variable & m, variable & w, dataset & normset, size_t projdim, 
 {
 }
 
-double bw_proj::func_weight(double x)
+double bw_proj::func_weight(const double * x)
 {
 	double m = get_par(0);
 	double w = get_par(1);
-	return 1.0/((x-m)*(x-m)+0.25*w*w);
+	return 1.0/((x[0]-m)*(x[0]-m)+0.25*w*w);
 }
 
 class gaus_proj: public projpdf
@@ -37,7 +37,7 @@ class gaus_proj: public projpdf
 		gaus_proj(variable & m, variable & s, dataset & normset, size_t projdim, size_t nbin, double lo, double hi);
 		gaus_proj(variable & m, variable & s, dataset & normset, size_t projdim, size_t nbin, const double * binning);
 		virtual ~gaus_proj() {}
-		virtual double func_weight(double x);
+		virtual double func_weight(const double * x);
 };
 
 gaus_proj::gaus_proj(variable & m, variable & s, dataset & normset, size_t projdim, size_t nbin, double lo, double hi):
@@ -50,11 +50,11 @@ gaus_proj::gaus_proj(variable & m, variable & s, dataset & normset, size_t projd
 {
 }
 
-double gaus_proj::func_weight(double x)
+double gaus_proj::func_weight(const double * x)
 {
 	double m = get_par(0);
 	double s = get_par(1);
-	return exp(-(x-m)*(x-m)/2/s/s);
+	return exp(-(x[1]-m)*(x[1]-m)/2/s/s);
 }
 
 void df08_projpdf1()
@@ -67,12 +67,6 @@ void df08_projpdf1()
 	TH1F * h2 = new TH1F("h2", "", 15, ybinning);
 	t->Draw("x>>h1", "w2", "goff");
 	t->Draw("y>>h2", "w2", "goff");
-	TCanvas * c = new TCanvas("c", "", 1600, 800);
-	c->Divide(2, 1);
-	c->cd(1);
-	h1->Draw();
-	c->cd(2);
-	h2->Draw();
 	
 	dataset data_2d_norm(t, {"x", "y"});
 	datahist data_x(h1);
@@ -87,4 +81,25 @@ void df08_projpdf1()
 	variable s("s", 4, 0.1, 20);
 	gaus_proj gaus_y(m2, s, data_2d_norm, 1, 15, ybinning);
 	gaus_y.chi2fit(data_y);
+
+	TCanvas * c = new TCanvas("c", "", 1600, 800);
+	c->Divide(2, 1);
+	TH1F * h1a = new TH1F("h1a", "", 100, -10, 10);
+	TH1F * h1b = new TH1F("h1b", "", 100, -10, 10);
+	TH1F * h2a = new TH1F("h2a", "", 100, -10, 10);
+	TH1F * h2b = new TH1F("h2b", "", 100, -10, 10);
+
+	c->cd(1);
+	data_x.draw(h1a);
+	bw_x.draw(h1b, h1a);
+	h1b->SetLineColor(2);
+	h1a->Draw();
+	h1b->Draw("hist same");
+
+	c->cd(2);
+	data_y.draw(h2a);
+	gaus_y.draw(h2b, h2a);
+	h2b->SetLineColor(2);
+	h2a->Draw();
+	h2b->Draw("hist same");
 }

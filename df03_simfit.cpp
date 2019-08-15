@@ -26,4 +26,26 @@ void df03_simfit()
 	comb.add(gaus, data_gaus);
 	comb.add(bw, data_bw);
 	comb.fit(true);
+	
+	TCanvas * c = new TCanvas("c", "", 1600, 800);
+	c->Divide(2, 1);
+	c->cd(1);
+	TH1F * h1 = new TH1F("h1", "", 100, -10, 10);
+	TH1F * h3 = new TH1F("h3", "", 100, -10, 10);
+	data_gaus.draw(h1);
+	gaus.draw(h3, h1);
+	h1->SetLineColor(1);
+	h3->SetLineColor(2);
+	h1->Draw("e");
+	h3->Draw("hist same");
+	
+	c->cd(2);
+	TH1F * h2 = new TH1F("h2", "", 100, -10, 10);
+	TH1F * h4 = new TH1F("h4", "", 100, -10, 10);
+	data_bw.draw(h2);
+	bw.draw(h4, h2);
+	h2->SetLineColor(1);
+	h4->SetLineColor(2);
+	h2->Draw("e");
+	h4->Draw("hist same");
 }

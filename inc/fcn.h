@@ -19,6 +19,7 @@ class fcn: public ROOT::Minuit2::FCNBase
 		fcn() = default;
 		fcn(pdf * p, dataset * d);
 		virtual ~fcn();
+		
 		void add(pdf * p, dataset * d);
 		dataset * get_data(int n) { return m_datalist[n]; }
 		std::vector<dataset *> & get_data_list() { return m_datalist; }
@@ -27,6 +28,7 @@ class fcn: public ROOT::Minuit2::FCNBase
 		variable * get_var(int n) { return m_varlist[n]; }
 		std::vector<variable *> & get_var_list() { return m_varlist; }
 		void minimize(bool minos_err = false);
+		
 		virtual double operator()(const std::vector<double> & par) const = 0;
 		virtual double Up() const = 0;
 

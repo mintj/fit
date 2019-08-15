@@ -27,6 +27,23 @@ void df02_addfit()
 	addpdf sum({&gaus, &bw}, {&frac});
 	sum.fit(data_mix, true);
 
+	TH1F * h1 = new TH1F("h1", "", 100, -10, 10);
+	TH1F * h2 = new TH1F("h2", "", 100, -10, 10);
+	TH1F * h3 = new TH1F("h3", "", 100, -10, 10);
+	TH1F * h4 = new TH1F("h4", "", 100, -10, 10);
+	data_mix.draw(h1);
+	sum.draw(h2, h1);
+	sum.draw_comp(h3, 0, h1);
+	sum.draw_comp(h4, 1, h1);
+	h1->SetLineColor(1);
+	h2->SetLineColor(2);
+	h3->SetLineColor(3);
+	h4->SetLineColor(4);
+	h1->Draw("e");
+	h2->Draw("hist same");
+	h3->Draw("hist same");
+	h4->Draw("hist same");
+
 	std::cout << "\n****************************************" << std::endl;
 	std::cout << "integral of gaus on (1, 2) = " << gaus.integral(1, 2) << std::endl;
 	std::cout << "integral of bw on (1, 2) = " << bw.integral(1, 2) << std::endl;

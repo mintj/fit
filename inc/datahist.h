@@ -11,16 +11,26 @@ class datahist: public dataset
 		datahist(const datahist & d) = delete;
 		datahist & operator=(const datahist & d) = delete;
 		virtual ~datahist();
+		
+		void draw(TH1 * h, const char * option = "", size_t x = 0, pdf * p = 0);
+		void draw(TH1 * h, std::function<double(double *)> weight_func, const char * option = "", size_t x = 0);
+		void draw(TH2 * h, const char * option = "", size_t x = 0, size_t y = 1, pdf * p = 0) = delete;
+		void draw(TH2 * h, std::function<double(double *)> weight_func, const char * option = "", size_t x = 0, size_t y = 1) = delete;
 		double edge_lo(int n) { return m_edge[n]; }
 		double edge_hi(int n) { return m_edge[n+1]; }
 		double err(int n) { return m_err[n]; }
 		double err_down(int n) { return m_err_down[n]; }
 		double err_up(int n) { return m_err_up[n]; }
 		int find_bin(double x) { return m_hist->FindBin(x)-1; }
+		double max(int n = 0);
+		double min(int n = 0);
+		void set_binning(int n, double lo, double hi) = delete;
+		void set_binning(int n, double * binning) = delete;
+		void set_binning2d(int nx, double xlo, double xhi, int ny, double ylo, double yhi) = delete;
 		double width(int n) { return edge_hi(n) - edge_lo(n); }
 
 	private:
-		void aquire_resourse();
+		void acquire_resourse();
 		bool init_from_h1d(TH1 * h1);
 		void release_resourse();
 	

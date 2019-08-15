@@ -15,7 +15,9 @@ class chi2fcn: public fcn
 		chi2fcn() = default;
 		chi2fcn(pdf * p, datahist * d);
 		virtual ~chi2fcn();
+		
 		void add(pdf * p, datahist * d);
+		
 		virtual double operator()(const std::vector<double> & par) const;
 		virtual double Up() const { return 1.0; }
 
