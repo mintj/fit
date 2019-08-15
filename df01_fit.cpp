@@ -24,11 +24,26 @@ void df01_fit()
 	gaussian gaus(m, s, data_norm);
 	gaus.fit(data_gaus);
 	
+	TCanvas * c1 = new TCanvas("c1", "", 800, 800);
+	c1->cd();
+	TH1F * h1a = new TH1F("h1a", "", 100, -10, 10);
+	TH1F * h1b = new TH1F("h1b", "", 100, -10, 10);
+	data_gaus.draw(h1a);
+	gaus.draw(h1b, h1a);
+	
+	
 	cout << "********************* breit wigner *******************" << endl;
 	variable w("w", 4, 0.3, 20);
 	breitwigner bw(m, w, data_norm);
 	bw.fit(data_bw, true);
 	
+	TCanvas * c2 = new TCanvas("c2", "", 800, 800);
+	c2->cd();
+	TH1F * h2a = new TH1F("h2a", "", 100, -10, 10);
+	TH1F * h2b = new TH1F("h2b", "", 100, -10, 10);
+	data_bw.draw(h2a);
+	bw.draw(h2b, h2a);
+
 	cout << "********************* integral ********************" << endl;
 	variable m2("m2", 1);
 	variable s2("s2", 2);

@@ -24,6 +24,7 @@ pdf::pdf(size_t dim, const std::vector<variable *> & vlist, dataset & normset):
 	m_normalized(false),
 	m_normset(&normset)
 {
+	assert(dim <= normset.dim());
 	for (variable * v: vlist) {
 		m_varlist.push_back(v);
 		m_lastvalue.push_back(v->value()-0.1); // make sure the first call of updated() will return true
@@ -32,6 +33,15 @@ pdf::pdf(size_t dim, const std::vector<variable *> & vlist, dataset & normset):
 
 pdf::~pdf()
 {
+}
+
+double pdf::calculate_area(TH1 * h)
+{
+	double a = 0;
+	for (int u = 1; u < h->GetNbinsX(); ++u) {
+		a += h->GetBinContent(u) * h->GetBinWidth(u);
+	}
+	return a;
 }
 
 void pdf::chi2fit(datahist & data, bool minos_err)
@@ -50,6 +60,39 @@ chi2fcn * pdf::create_chi2(datahist * data)
 {
 	m_chi2.reset(new chi2fcn(this, data));
 	return m_chi2.get();
+}
+
+void pdf::draw(TH1 * h, TH1 * hnorm, const char * option)
+{
+	if (m_dim) {
+		m_normset->draw(h, option, 0, this);
+		for (int u = 1; u <= h->GetNbinsX(); ++u) {
+			h->SetBinError(u, 0);
+		}
+		if (hnorm) {
+			double anorm = calculate_area(hnorm);
+			double a = calculate_area(h);
+			h->Scale(anorm/a);
+		}
+	}
+}
+
+void pdf::draw(TH2 * h, TH2 * hnorm, const char * option)
+{
+	if (m_dim >= 2) {
+		m_normset->draw(h, option, 0, 1, this);
+		for (int u = 1; u <= h->GetNbinsX(); ++u) {
+			for (int v = 1; v <= h->GetNbinsY(); ++v) {
+				h->SetBinError(u, v, 0);
+			}
+		}
+		if (hnorm && h->Integral()) {
+			h->Scale(hnorm->Integral() / h->Integral()); // TODO: how to deal with coarse binning?
+		}
+	}
+	else {
+		std::cout << "[pdf] error: 1d pdf cannot plot 2d hist" << std::endl;
+	}
 }
 
 void pdf::fit(dataset & data, bool minos_err)
@@ -144,7 +187,7 @@ int pdf::normalize()
 	return m_status;
 }
 
-double pdf::operator()(const double * x)
+double pdf::operator()(double * x)
 {
 	return norm()*evaluate(x);
 }

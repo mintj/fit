@@ -17,7 +17,9 @@ class nllfcn: public fcn
 		nllfcn() = default;
 		nllfcn(pdf * p, dataset * d);
 		virtual ~nllfcn();
+		
 		void add(pdf * p, dataset * d);
+		
 		virtual double operator()(const std::vector<double> & par) const;
 		virtual double Up() const { return 0.5; }
 

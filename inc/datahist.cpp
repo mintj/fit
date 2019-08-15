@@ -5,7 +5,7 @@ datahist::datahist(TH1 * h):
 	dataset(h->GetNbinsX(), 1),
 	m_hist(h)
 {
-	aquire_resourse();
+	acquire_resourse();
 	if (!init_from_h1d(h)) release_resourse();
 }
 
@@ -14,12 +14,46 @@ datahist::~datahist()
 	release_resourse();
 }
 
-void datahist::aquire_resourse()
+void datahist::acquire_resourse()
 {
 	m_edge = new double[m_size+1];
 	m_err = new double[m_size];
 	m_err_down = new double[m_size];
 	m_err_up = new double[m_size];
+}
+
+void datahist::draw(TH1 * h, const char * option, size_t x, pdf * p)
+{
+	const char * name = h->GetName();
+	if (h != m_hist) {
+		if (h->IsOnHeap()) delete h;
+		h = (TH1F *)m_hist->Clone(name);
+	}
+	if (p && p->dim() == 1) {
+		for (int u = 1; u <= h->GetNbinsX(); ++u) {
+			double c = h->GetBinContent(u);
+			double e = h->GetBinError(u);
+			double v = p->operator()(&m_arr[u-1]);
+			h->SetBinContent(u, c*v);
+			h->SetBinError(u, e*v);
+		}
+	}
+	h->Draw(option);
+}
+
+void datahist::draw(TH1 * h, std::function<double(double *)> weight_func, const char * option, size_t x)
+{
+	const char * name = h->GetName();
+	if (h->IsOnHeap()) delete h;
+	h = (TH1F *)m_hist->Clone(name);
+	for (int u = 1; u <= h->GetNbinsX(); ++u) {
+		double c = h->GetBinContent(u);
+		double e = h->GetBinError(u);
+		double v = weight_func(&m_arr[u-1]);
+		h->SetBinContent(u, c*v);
+		h->SetBinError(u, e*v);
+	}
+	h->Draw(option);
 }
 
 bool datahist::init_from_h1d(TH1 * h)
@@ -36,6 +70,16 @@ bool datahist::init_from_h1d(TH1 * h)
 	}
 	m_edge[m_size] = m_edge[m_size-1] + h->GetBinWidth(m_size);
 	return true;
+}
+
+double datahist::max(int n)
+{
+	return m_edge[0];
+}
+
+double datahist::min(int n)
+{
+	return m_edge[m_size];
 }
 
 void datahist::release_resourse()

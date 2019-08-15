@@ -1,18 +1,20 @@
+#include <iostream>
 #include "TLeaf.h"
 #include "dataset.h"
+#include "pdf.h"
 
 dataset::dataset(size_t s, size_t d):
 	m_size(s),
 	m_dim(d)
 {
-	aquire_resourse();
+	acquire_resourse();
 }
 
 dataset::dataset(TTree * t, const std::vector<const char *> & varname):
 	m_size(t->GetEntries()),
 	m_dim(varname.size())
 {
-	aquire_resourse();
+	acquire_resourse();
 	if (!init_from_tree(t, varname)) release_resourse();
 }
 
@@ -20,7 +22,7 @@ dataset::dataset(TTree * t, const std::vector<const char *> & varname, const cha
 	m_size(t->GetEntries()),
 	m_dim(varname.size())
 {
-	aquire_resourse();
+	acquire_resourse();
 	if (!init_from_tree(t, varname, wname)) release_resourse();
 }
 
@@ -29,10 +31,97 @@ dataset::~dataset()
 	release_resourse();
 }
 
-void dataset::aquire_resourse()
+void dataset::acquire_resourse()
 {
 	m_arr = new double[m_size*m_dim];
+	for (size_t u = 0; u < m_size*m_dim; ++u) {
+		m_arr[u] = 0;
+	}
+	
 	m_weight = new double[m_size];
+	for (size_t u = 0; u < m_size; ++u) {
+		m_weight[u] = 0;
+	}
+}
+
+void dataset::draw(TH1 * h, const char * option, size_t x, pdf * p)
+{
+	if (x < m_dim) {
+		h->Reset();
+		double * curr = m_arr;
+		if (p && p->dim() <= m_dim) {
+			for (size_t u = 0; u < m_size; ++u) {
+				h->Fill(curr[x], m_weight[u]*p->operator()(curr));
+				curr += m_dim;
+			}
+		}
+		else {
+			for (size_t u = 0; u < m_size; ++u) {
+				h->Fill(curr[x], m_weight[u]);
+				curr += m_dim;
+			}
+		}
+		h->Draw(option);
+	}
+	else {
+		std::cout << "[dataset] error: out of allowed dimension 0 ~ " << m_dim-1 << " (" << x << ")" << std::endl;
+	}
+}
+
+void dataset::draw(TH1 * h, std::function<double(double *)> weight_func, const char * option, size_t x)
+{
+	if (x < m_dim) {
+		h->Reset();
+		double * curr = m_arr;
+		for (size_t u = 0; u < m_size; ++u) {
+			h->Fill(curr[x], m_weight[u]*weight_func(curr));
+			curr += m_dim;
+		}
+		h->Draw(option);
+	}
+	else {
+		std::cout << "[dataset] error: out of allowed dimension 0 ~ " << m_dim-1 << " (" << x << ")" << std::endl;
+	}
+}
+
+void dataset::draw(TH2 * h, const char * option, size_t x, size_t y, pdf * p)
+{
+	if (x < m_dim && y < m_dim) {
+		h->Reset();
+		double * curr = m_arr;
+		if (p && p->dim() <= m_dim) {
+			for (size_t u = 0; u < m_size; ++u) {
+				h->Fill(curr[x], curr[y], m_weight[u]*p->operator()(curr));
+				curr += m_dim;
+			}
+		}
+		else {
+			for (size_t u = 0; u < m_size; ++u) {
+				h->Fill(curr[x], curr[y], m_weight[u]);
+				curr += m_dim;
+			}
+		}
+		h->Draw(option);
+	}
+	else {
+		std::cout << "[dataset] error: out of allowed dimension 0 ~ " << m_dim-1 << " (" << x << ", " << y << ")" << std::endl;
+	}
+}
+
+void dataset::draw(TH2 * h, std::function<double(double *)> weight_func, const char * option, size_t x, size_t y)
+{
+	if (x < m_dim) {
+		h->Reset();
+		double * curr = m_arr;
+		for (size_t u = 0; u < m_size; ++u) {
+			h->Fill(curr[x], curr[y], m_weight[u]*weight_func(curr));
+			curr += m_dim;
+		}
+		h->Draw(option);
+	}
+	else {
+		std::cout << "[dataset] error: out of allowed dimension 0 ~ " << m_dim-1 << " (" << x << ", " << y << ")" << std::endl;
+	}
 }
 
 bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varname)
@@ -102,6 +191,28 @@ bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varnam
 		else return false;
 	}
 	return true;
+}
+
+double dataset::max(int n)
+{
+	if (!m_size || n >= m_dim) return 0;
+	
+	double m = m_arr[n];
+	for (size_t u = 1; u < m_size; ++u) {
+		if (m < m_arr[u*m_dim+n]) m = m_arr[u*m_dim+n];
+	}
+	return m;
+}
+
+double dataset::min(int n)
+{
+	if (!m_size || n >= m_dim) return 0;
+	
+	double m = m_arr[n];
+	for (size_t u = 1; u < m_size; ++u) {
+		if (m > m_arr[u*m_dim+n]) m = m_arr[u*m_dim+n];
+	}
+	return m;
 }
 
 void dataset::release_resourse()

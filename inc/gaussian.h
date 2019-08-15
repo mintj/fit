@@ -11,7 +11,9 @@ class gaussian: public pdf
 	public:
 		gaussian(variable & m, variable & s, dataset & normset);
 		virtual ~gaussian();
-		virtual double evaluate(const double * x);
+		
+		// override pdf
+		double evaluate(const double * x);
 };
 
 #endif

@@ -36,4 +36,22 @@ void df05_chi2simfit()
 	comb.add(gaus, data_gaus);
 	comb.add(bw, data_bw);
 	comb.chi2fit(true);
+
+	TCanvas * c = new TCanvas("c", "", 1600, 800);
+	c->Divide(2, 1);
+	c->cd(1);
+	TH1F * h3 = (TH1F *)h1->Clone("h3");
+	gaus.draw(h3, h1);
+	h1->SetLineColor(1);
+	h3->SetLineColor(2);
+	h1->Draw("e");
+	h3->Draw("hist same");
+	
+	c->cd(2);
+	TH1F * h4 = (TH1F *)h2->Clone("h4");
+	bw.draw(h4, h2);
+	h2->SetLineColor(1);
+	h4->SetLineColor(2);
+	h2->Draw("e");
+	h4->Draw("hist same");
 }

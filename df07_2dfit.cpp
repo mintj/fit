@@ -46,6 +46,16 @@ void df07_2dfit()
 	gaussian2d gaus2d(m1, s1, m2, s2, rho, data_2d_norm);
 	gaus2d.fit(data_2d);
 	
+	TH2F * h2a = new TH2F("h2a", "", 50, -10, 10, 50, -10, 10);
+	TH2F * h2b = new TH2F("h2b", "", 50, -10, 10, 50, -10, 10);
+	
+	TCanvas * c = new TCanvas("c", "", 1600, 800);
+	c->Divide(2, 1);
+	c->cd(1);
+	data_2d.draw(h2a, "colz");
+	c->cd(2);
+	gaus2d.draw(h2b, h2a, "colz");
+	
 	std::cout << "***********************************************" << std::endl;
 	double x1 = m1.value()-s1.value();
 	double x2 = m1.value()+s1.value();
@@ -56,7 +66,7 @@ void df07_2dfit()
 	double x, y, w;
 	t->SetBranchAddress("x", &x);
 	t->SetBranchAddress("y", &y);
-	t->SetBranchAddress("w", &w);
+	t->SetBranchAddress("w1", &w);
 	for (int u = 0; u < t->GetEntries(); ++u) {
 		t->GetEntry(u);
 		ntot += w;
