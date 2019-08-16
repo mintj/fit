@@ -56,12 +56,8 @@ template<typename... T> void datahist::plot_on(plot * frame, T... action)
 	if (dim) {
 		std::cout << "[datahist] warning: 'datahist' is 1d data, dimension argument in 'plot_on' method is ignored" << endl;
 	}
-	TH1F * h = (TH1F *)m_hist->Clone();
-	h->SetName(Form("%p", h));
-
+	TH1F * h = frame->generate_hist(this, dim);
 	frame->add(h, std::forward<T>(action)...);
-	frame->set_normhist(h);
-	frame->set_option(h, "e same");
 }
 
 void datahist::release_resourse()

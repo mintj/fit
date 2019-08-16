@@ -13,6 +13,8 @@ class projpdf: public pdf
 		projpdf(const std::vector<variable *> & vlist, dataset & normset, size_t pdim, size_t nbin, double lo, double hi);
 		projpdf(const std::vector<variable *> & vlist, dataset & normset, size_t pdim, size_t nbin, const double * binning);
 		virtual ~projpdf();
+
+		const std::vector<double> & get_binning() { return m_binning; }
 		
 		// override pdf
 		virtual double evaluate(const double * x);

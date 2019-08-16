@@ -35,6 +35,7 @@ class pdf
 		size_t npar() { return m_varlist.size(); }
 		double operator()(double * x);
 		template<typename... T> void plot_on(plot * frame, T... action);
+		void plot2d(TH2 * h, const char * option = "colz", size_t dimx = 0, size_t dimy = 1, TH2 * hnorm = 0);
 		
 		virtual double evaluate(const double * x) = 0;
 		virtual double evaluate_for_plot(const double * x) { return evaluate(x); }

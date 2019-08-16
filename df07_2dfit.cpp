@@ -46,15 +46,32 @@ void df07_2dfit()
 	gaussian2d gaus2d(m1, s1, m2, s2, rho, data_2d_norm);
 	gaus2d.fit(data_2d);
 	
-	TH2F * h2a = new TH2F("h2a", "", 50, -10, 10, 50, -10, 10);
-	TH2F * h2b = new TH2F("h2b", "", 50, -10, 10, 50, -10, 10);
-	
 	TCanvas * c = new TCanvas("c", "", 1600, 800);
 	c->Divide(2, 1);
+	
 	c->cd(1);
-	data_2d.draw(h2a, "colz");
+	plot * frame1 = new plot;
+	data_2d.plot_on(frame1, msfit::project(0));
+	gaus2d.plot_on(frame1, msfit::project(0), msfit::linecolor(2));
+	frame1->draw();
+	
 	c->cd(2);
-	gaus2d.draw(h2b, h2a, "colz");
+	plot * frame2 = new plot;
+	data_2d.plot_on(frame2, msfit::project(1));
+	gaus2d.plot_on(frame2, msfit::project(1), msfit::linecolor(2));
+	frame2->draw();
+
+	TCanvas * c2 = new TCanvas("c2", "", 1600, 800);
+	c2->Divide(2, 1);
+	
+	c2->cd(1);
+	TH2F * h2a = new TH2F("h2a", "", 50, -10, 10, 50, -10, 10);
+	data_2d.plot2d(h2a, "colz");
+
+	c2->cd(2);	
+	TH2F * h2b = new TH2F("h2b", "", 50, -10, 10, 50, -10, 10);
+	gaus2d.plot2d(h2b, "colz", 0, 1, h2a);
+	
 	
 	std::cout << "***********************************************" << std::endl;
 	double x1 = m1.value()-s1.value();

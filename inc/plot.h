@@ -6,6 +6,7 @@
 #include <functional>
 #include "TH1F.h"
 
+class dataset;
 class pdf;
 
 class plot
@@ -16,6 +17,8 @@ class plot
 		
 		template <typename ... T> void add(TH1F * h, const T & ... action);
 		void draw();
+		TH1F * generate_hist(dataset * d, size_t dim);
+		TH1F * generate_hist(pdf * p, size_t dim);
 		TH1F * get_hist(const char * name);
 		TH1F * normhist() { return m_normhist; }
 		double normalized_nevt() { return m_nevt; }

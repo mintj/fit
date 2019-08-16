@@ -24,6 +24,7 @@ class datahist: public dataset
 		double min(int n = 0);
 		template<typename... T> void plot_on(plot * frame, T... action);
 		void plot2d(size_t dimx, size_t dimy, TH2 * h) = delete;
+		TH1 * source_hist() { return m_hist; }
 		double width(int n) { return edge_hi(n) - edge_lo(n); }
 
 	private:

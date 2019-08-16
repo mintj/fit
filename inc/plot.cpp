@@ -1,6 +1,12 @@
 #include <iostream>
+#include "TString.h"
+#include "addpdf.h"
+#include "datahist.h"
+#include "dataset.h"
+#include "pdf.h"
 #include "plot.h"
 #include "plotcmd.h"
+#include "projpdf.h"
 
 plot::plot():
 	m_nevt(1),
@@ -19,7 +25,6 @@ plot::~plot()
 template <typename ... T> void plot::add(TH1F * h, const T & ... action)
 {
 	m_hist.push_back(h);
-	m_option[h] = "same";
 	h->SetDirectory(0);
 	for (auto act: plotcmd::hist_actions()) {
 		act(h);
@@ -64,6 +69,53 @@ void plot::draw()
 		h->SetMinimum(min_height);
 		h->Draw(m_option[h]);
 	}
+}
+
+TH1F * plot::generate_hist(dataset * d, size_t dim)
+{
+	TH1F * h;
+	datahist * dh = dynamic_cast<datahist *>(d);
+	if (dh) {
+		h = (TH1F *)dh->source_hist()->Clone();
+	}
+	else {
+		int nbin = d->nbin() ? d->nbin() : 100;
+		double xmin = d->min(dim);
+		double xmax = d->max(dim);
+		h = new TH1F("unnamed", "", nbin, xmin, xmax);
+	}
+
+	h->SetName(Form("%p", h));
+	set_normhist(h);
+	set_option(h, "e same");
+	
+	return h;
+}
+
+TH1F * plot::generate_hist(pdf * p, size_t dim)
+{
+	TH1F * h;
+	projpdf * pp = dynamic_cast<projpdf *>(p);
+	if (pp) {
+		auto & binning = pp->get_binning();
+		h = new TH1F("unnamed", "", binning.size()-1, &binning.at(0));
+	}
+	else {
+		if (m_normhist) {
+			h = (TH1F *)m_normhist->Clone();
+			h->Reset();
+		}
+		else {
+			double xmin = p->normset()->min(dim);
+			double xmax = p->normset()->max(dim);
+			h = new TH1F("unnamed", "", 100, xmin, xmax);
+		}
+	}
+
+	h->SetName(Form("%p", h));
+	set_option(h, "hist same");
+	
+	return h;
 }
 
 TH1F * plot::get_hist(const char * name)

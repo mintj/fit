@@ -167,18 +167,7 @@ template<typename... T> void pdf::plot_on(plot * frame, T... action)
 	frame->set_currpdf(this);
 	size_t dim = frame->proj_dim();
 	if (dim < m_dim) {
-		TH1F * h;
-		TH1F * hnorm = frame->normhist();
-		if (hnorm) {
-			h = (TH1F *)hnorm->Clone();
-			h->Reset();
-		}
-		else {
-			double xmin = m_normset->min(dim);
-			double xmax = m_normset->max(dim);
-			h = new TH1F("unnamed", "", 100, xmin, xmax);
-		}
-		h->SetName(Form("%p", h));
+		TH1F * h = frame->generate_hist(this, dim);
 		frame->add(h, std::forward<T>(action)...);
 	
 		for (size_t u = 0; u < m_normset->size(); ++u) {
@@ -192,12 +181,28 @@ template<typename... T> void pdf::plot_on(plot * frame, T... action)
 		for (int u = 1; u <= h->GetNbinsX(); ++u) {
 			h->SetBinError(u, 0);
 		}
-		frame->set_option(h, "hist same");
 	}
 	else {
-		std::cout << "[pdf] error: allowed dimension for this pdf is 0~" << m_dim-1 << std::endl;
+		std::cout << "[pdf] error: project dimension in request (" << dim << ") is not allowed for this pdf (0~" << m_dim-1 << ")" << std::endl;
 	}
 	frame->set_currpdf(0);
+}
+
+void pdf::plot2d(TH2 * h, const char * option, size_t dimx, size_t dimy, TH2 * hnorm)
+{
+	if (dimx < m_dim && dimy < m_dim) {
+		for (int u = 0; u < m_normset->size(); ++u) {
+			double * p = m_normset->at(u);
+			double px = p[dimx];
+			double py = p[dimy];
+			h->Fill(px, py, evaluate(p) * m_normset->weight(u));
+		}
+		if (hnorm) h->Scale(hnorm->Integral() / h->Integral());
+	}
+	else {
+		std::cout << "[dataset] error: project dimension in request (" << dimx << ", " << dimy << ") is not allowed for this dataset (0~" << m_dim-1 << ")" << std::endl;
+	}
+	h->Draw(option);
 }
 
 void pdf::set_normset(dataset & normset)

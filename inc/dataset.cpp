@@ -151,24 +151,28 @@ template <typename ... T> void dataset::plot_on(plot * frame, T ... action)
 {
 	size_t dim = frame->proj_dim();
 	if (dim < m_dim) {
-		int nbin = m_nbin ? m_nbin : 100;
-		double xmin = min(dim);
-		double xmax = max(dim);
-		TH1F * h = new TH1F("unnamed", "", nbin, xmin, xmax);
-		h->SetName(Form("%p", h));
+		TH1F * h = frame->generate_hist(this, dim);
 		frame->add(h, std::forward<T>(action)...);
-
 		for (size_t u = 0; u < m_size; ++u) {
 			h->Fill(at(u)[dim], weight(u));
 		}
-		frame->set_normhist(h);
-		frame->set_option(h, "e same");
 	}
 	else {
-		std::cout << "[dataset] error: allowed dimension for this dataset is 0~" << m_dim-1 << std::endl;
+		std::cout << "[dataset] error: project dimension in request (" << dim << ") is not allowed for this dataset (0~" << m_dim-1 << ")" << std::endl;
 	}
 }
 
-void dataset::plot2d(size_t dimx, size_t dimy, TH2 * h)
+void dataset::plot2d(TH2 * h, const char * option, size_t dimx, size_t dimy)
 {
+	if (dimx < m_dim && dimy < m_dim) {
+		for (int u = 0; u < m_size; ++u) {
+			double x = at(u)[dimx];
+			double y = at(u)[dimy];
+			h->Fill(x, y, weight(u));
+		}
+	}
+	else {
+		std::cout << "[dataset] error: project dimension in request (" << dimx << ", " << dimy << ") is not allowed for this dataset (0~" << m_dim-1 << ")" << std::endl;
+	}
+	h->Draw(option);
 }
