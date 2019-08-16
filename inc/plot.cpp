@@ -40,8 +40,9 @@ template <typename ... T> void plot::add(TH1F * h, const T & ... action)
 		else m_nevt = ftot;
 
 		for (size_t u = 0; u < apdf->number_of_pdfs(); ++u) {
-			bool use = !(comp_set.find(u) == comp_set.end());
-			apdf->set_frac_for_plot(u, use);
+			if (comp_set.find(u) == comp_set.end()) {
+				apdf->set_frac_for_plot(u, 0);
+			}
 		}
 	}
 	plotcmd::clear();
@@ -72,6 +73,11 @@ TH1F * plot::get_hist(const char * name)
 	}
 	std::cout << "[plot] error: there is no histogram named " << name << " on this plot" << std::endl;
 	return 0;
+}
+
+size_t plot::proj_dim()
+{
+	return plotcmd::project_dim();
 }
 
 void plot::set_normhist(TH1F * h)

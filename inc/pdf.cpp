@@ -162,14 +162,16 @@ double pdf::operator()(double * x)
 	return norm()*evaluate(x);
 }
 
-template<typename... T> void pdf::plot1d(size_t dim, plot * frame, T... action)
+template<typename... T> void pdf::plot_on(plot * frame, T... action)
 {
 	frame->set_currpdf(this);
+	size_t dim = frame->proj_dim();
 	if (dim < m_dim) {
 		TH1F * h;
 		TH1F * hnorm = frame->normhist();
 		if (hnorm) {
 			h = (TH1F *)hnorm->Clone();
+			h->Reset();
 		}
 		else {
 			double xmin = m_normset->min(dim);

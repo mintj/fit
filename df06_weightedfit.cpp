@@ -24,8 +24,8 @@ void df06_weightedfit()
 	TCanvas * c1 = new TCanvas("c1");
 	c1->cd();
 	plot * frame1 = new plot;
-	data_bw.plot1d(0, frame1);
-	bw.plot1d(0, frame1, msfit::linecolor(2));
+	data_bw.plot_on(frame1);
+	bw.plot_on(frame1, msfit::linecolor(2));
 	frame1->draw();
 
 	cout << "********************* gaussian ********************" << endl;
@@ -37,19 +37,21 @@ void df06_weightedfit()
 	TCanvas * c2 = new TCanvas("c2");
 	c2->cd();
 	plot * frame2 = new plot;
-	data_gaus.plot1d(0, frame2);
-	gaus.plot1d(0, frame2, msfit::linecolor(2));
+	data_gaus.plot_on(frame2);
+	gaus.plot_on(frame2, msfit::linecolor(2));
 	frame2->draw();
 
 	cout << "********************* add fit ********************" << endl;
 	variable frac("frac", 0.5, 0, 1);
 	addpdf sum({&bw, &gaus}, {&frac});
-	sum.fit(data_mix, true);
+	sum.fit(data_mix);
 
 	TCanvas * c3 = new TCanvas("c3");
 	c3->cd();
 	plot * frame3 = new plot;
-	data_mix.plot1d(0, frame3);
-	sum.plot1d(0, frame3, msfit::linecolor(2));
+	data_mix.plot_on(frame3);
+	sum.plot_on(frame3, msfit::linecolor(2));
+	sum.plot_on(frame3, msfit::components(0), msfit::linecolor(3), msfit::linestyle(2));
+	sum.plot_on(frame3, msfit::components(1), msfit::linecolor(4), msfit::linestyle(2), msfit::name("wori"));
 	frame3->draw();
 }

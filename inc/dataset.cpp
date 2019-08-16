@@ -147,8 +147,9 @@ void dataset::release_resourse()
 	if (m_weight) delete [] m_weight;
 }
 
-template <typename ... T> void dataset::plot1d(size_t dim, plot * frame, T ... action)
+template <typename ... T> void dataset::plot_on(plot * frame, T ... action)
 {
+	size_t dim = frame->proj_dim();
 	if (dim < m_dim) {
 		int nbin = m_nbin ? m_nbin : 100;
 		double xmin = min(dim);

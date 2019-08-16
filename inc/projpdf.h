@@ -25,6 +25,7 @@ class projpdf: public pdf
 
 	protected:
 		std::vector<double> m_binning;
+		std::vector<double> m_bin_totweight;
 		std::vector<std::vector<double *>> m_bin_data;
 		std::vector<std::vector<double>> m_bin_weight;
 };

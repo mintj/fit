@@ -22,7 +22,7 @@ class datahist: public dataset
 		int find_bin(double x) { return m_hist->FindBin(x)-1; }
 		double max(int n = 0);
 		double min(int n = 0);
-		template<typename... T> void plot1d(size_t dim, plot * frame, T... action);
+		template<typename... T> void plot_on(plot * frame, T... action);
 		void plot2d(size_t dimx, size_t dimy, TH2 * h) = delete;
 		double width(int n) { return edge_hi(n) - edge_lo(n); }
 

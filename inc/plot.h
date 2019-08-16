@@ -19,6 +19,7 @@ class plot
 		TH1F * get_hist(const char * name);
 		TH1F * normhist() { return m_normhist; }
 		double normalized_nevt() { return m_nevt; }
+		size_t proj_dim();
 		void set_normhist(TH1F * h);
 		void set_option(TH1F * h, const char * option) { m_option[h] = option; }
 		void set_currpdf(pdf * p) { m_currpdf = p; }

@@ -27,8 +27,8 @@ void df01_fit()
 	TCanvas * c1 = new TCanvas("c1", "", 800, 800);
 	c1->cd();
 	plot * frame1 = new plot;
-	data_gaus.plot1d(0, frame1);
-	gaus.plot1d(0, frame1, msfit::linecolor(2));
+	data_gaus.plot_on(frame1);
+	gaus.plot_on(frame1, msfit::linecolor(2));
 	frame1->draw();
 	
 	cout << "********************* breit wigner *******************" << endl;
@@ -39,8 +39,8 @@ void df01_fit()
 	TCanvas * c2 = new TCanvas("c2", "", 800, 800);
 	c2->cd();
 	plot * frame2 = new plot;
-	data_bw.plot1d(0, frame2, msfit::name("bw data"));
-	bw.plot1d(0, frame2, msfit::linecolor(2), msfit::name("bw fit"));
+	data_bw.plot_on(frame2, msfit::name("bw data"));
+	bw.plot_on(frame2, msfit::linecolor(2), msfit::name("bw fit"));
 	frame2->draw();
 
 	cout << "********************* integral ********************" << endl;

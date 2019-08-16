@@ -42,8 +42,8 @@ void df04_chi2fit()
 	TCanvas * c1 = new TCanvas("c1", "", 800, 800);
 	c1->cd();
 	plot * frame1 = new plot;
-	data_mix.plot1d(0, frame1);
-	sum.plot1d(0, frame1, msfit::linecolor(2));
+	data_mix.plot_on(frame1);
+	sum.plot_on(frame1, msfit::linecolor(2));
 	frame1->draw();
 
 	cout << "********************* coarse binning ********************" << endl;
@@ -52,7 +52,7 @@ void df04_chi2fit()
 	TCanvas * c2 = new TCanvas("c2", "", 800, 800);
 	c2->cd();
 	plot * frame2 = new plot;
-	data_mix2.plot1d(0, frame2);
-	sum.plot1d(0, frame2, msfit::linecolor(2));
+	data_mix2.plot_on(frame2);
+	sum.plot_on(frame2, msfit::linecolor(2));
 	frame2->draw();
 }

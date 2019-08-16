@@ -57,8 +57,8 @@ void df09_projpdf2()
 	TCanvas * c1 = new TCanvas("c1", "", 800, 800);
 	c1->cd();
 	plot * frame1 = new plot;
-	data_x.plot1d(0, frame1);
-	bw_x.plot1d(0, frame1, msfit::linecolor(2));
+	data_x.plot_on(frame1);
+	bw_x.plot_on(frame1, msfit::linecolor(2));
 	frame1->draw();
 
 	std::cout << "***************************** fit on y ****************************" << std::endl;
@@ -67,8 +67,8 @@ void df09_projpdf2()
 	TCanvas * c2 = new TCanvas("c2", "", 800, 800);
 	c2->cd();
 	plot * frame2 = new plot;
-	data_y.plot1d(0, frame2);
-	bw_y.plot1d(0, frame2, msfit::linecolor(2));
+	data_y.plot_on(frame2);
+	bw_y.plot_on(frame2, msfit::linecolor(2));
 	frame2->draw();
 	
 	std::cout << "***************************** simfit on x+y ****************************" << std::endl;
@@ -86,13 +86,13 @@ void df09_projpdf2()
 	
 	c3->cd(1);
 	plot * frame3 = new plot;
-	data_x.plot1d(0, frame3);
-	bw_x.plot1d(0, frame3, msfit::linecolor(2));
+	data_x.plot_on(frame3);
+	bw_x.plot_on(frame3, msfit::linecolor(2));
 	frame3->draw();
 	
 	c3->cd(2);
 	plot * frame4 = new plot;
-	data_y.plot1d(0, frame4);
-	bw_y.plot1d(0, frame4, msfit::linecolor(2));
+	data_y.plot_on(frame4);
+	bw_y.plot_on(frame4, msfit::linecolor(2));
 	frame4->draw();
 }

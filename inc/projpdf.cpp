@@ -14,6 +14,7 @@ projpdf::projpdf(const std::vector<variable *> & vlist, dataset & normset, size_
 		if (u > 0) {
 			m_bin_data.push_back(std::vector<double *>(0));
 			m_bin_weight.push_back(std::vector<double>(0));
+			m_bin_totweight.push_back(0);
 		}
 	}
 	init(pdim);
@@ -28,6 +29,7 @@ projpdf::projpdf(const std::vector<variable *> & vlist, dataset & normset, size_
 		if (u > 0) {
 			m_bin_data.push_back(std::vector<double *>(0));
 			m_bin_weight.push_back(std::vector<double>(0));
+			m_bin_totweight.push_back(0);
 		}
 	}
 	init(pdim);
@@ -47,7 +49,7 @@ double projpdf::evaluate(const double * x)
 			double w = m_bin_weight[bin][u];
 			v += func_weight(xx) * w;
 		}
-		v /= (m_binning[bin+1] - m_binning[bin]);
+		v /= m_bin_totweight[bin]; //(m_binning[bin+1] - m_binning[bin]);
 	}
 	return v;
 }
@@ -68,6 +70,7 @@ void projpdf::init(size_t pdim)
 		if (bin >= 0) {
 			m_bin_data[bin].push_back(m_normset->at(u));
 			m_bin_weight[bin].push_back(m_normset->weight(u));
+			m_bin_totweight[bin] += m_normset->weight(u);
 		}
 	}
 }

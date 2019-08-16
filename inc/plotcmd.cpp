@@ -9,11 +9,12 @@ void * msfit::components(int n)
 	return 0;
 }
 
-//template <typename T> void * msfit::components(int n, T ... rest)
-//{
-//	plotcmd::components_to_draw().insert(n);
-//	msfit::components(std::forward<T>(rest)...);
-//}
+template <typename ... T> void * msfit::components(int n, T ... rest)
+{
+	plotcmd::components_to_draw().insert(n);
+	msfit::components(rest...);
+	return 0;
+}
 
 void * msfit::linecolor(Color_t n)
 {
@@ -56,6 +57,21 @@ void * msfit::name(const char * name)
 	plotcmd::hist_actions().push_back([name](TH1F * h) { h->SetName(name); });
 	return 0;
 }
+
+void * msfit::project(int n)
+{
+	plotcmd::project_dim() = n;
+	return 0;
+}
+
+void plotcmd::clear()
+{
+	sm_hist_actions.clear();
+	sm_components.clear();
+	sm_projdim = 0;
+}
+
+size_t plotcmd::sm_projdim;
 
 std::set<int> plotcmd::sm_components;
 

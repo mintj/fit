@@ -21,7 +21,7 @@ class dataset
 		double * at(size_t n) { return m_arr+n*m_dim; }
 		size_t dim() { return m_dim; }
 		double nevt() { return m_wsize; }
-		template<typename... T> void plot1d(size_t dim, plot * frame, T... action);
+		template<typename... T> void plot_on(plot * frame, T... action);
 		void plot2d(size_t dimx, size_t dimy, TH2 * h);
 		void set_nbin(size_t n) { m_nbin = n; }
 		void set_val(size_t n, size_t d, double v) { m_arr[n*m_size+d] = v; }

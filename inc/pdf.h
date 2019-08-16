@@ -34,7 +34,7 @@ class pdf
 		dataset * normset() { return m_normset; }
 		size_t npar() { return m_varlist.size(); }
 		double operator()(double * x);
-		template<typename... T> void plot1d(size_t dim, plot * frame, T... action);
+		template<typename... T> void plot_on(plot * frame, T... action);
 		
 		virtual double evaluate(const double * x) = 0;
 		virtual double evaluate_for_plot(const double * x) { return evaluate(x); }

@@ -50,10 +50,11 @@ double datahist::min(int n)
 	return m_edge[m_size];
 }
 
-template<typename... T> void datahist::plot1d(size_t dim, plot * frame, T... action)
+template<typename... T> void datahist::plot_on(plot * frame, T... action)
 {
+	size_t dim = frame->proj_dim();
 	if (dim) {
-		std::cout << "[datahist] warning: 'datahist' is 1d data, dimension argument in 'plot1d' method is ignored" << endl;
+		std::cout << "[datahist] warning: 'datahist' is 1d data, dimension argument in 'plot_on' method is ignored" << endl;
 	}
 	TH1F * h = (TH1F *)m_hist->Clone();
 	h->SetName(Form("%p", h));

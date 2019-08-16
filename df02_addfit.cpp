@@ -28,10 +28,11 @@ void df02_addfit()
 	sum.fit(data_mix, true);
 
 	plot * frame = new plot;
-	data_mix.plot1d(0, frame);
-	sum.plot1d(0, frame, msfit::linecolor(2));
-	sum.plot1d(0, frame, msfit::components(0), msfit::linecolor(3), msfit::linestyle(2));
-	sum.plot1d(0, frame, msfit::components(1), msfit::linecolor(4), msfit::linestyle(2));
+	data_mix.plot_on(frame);
+	sum.plot_on(frame, msfit::linecolor(2));
+	sum.plot_on(frame, msfit::components(0), msfit::linecolor(3), msfit::linestyle(2));
+	sum.plot_on(frame, msfit::components(1), msfit::linecolor(4), msfit::linestyle(2));
+	//sum.plot_on(frame, msfit::components(0, 1), msfit::linecolor(2));
 	frame->draw();
 
 	std::cout << "\n****************************************" << std::endl;
