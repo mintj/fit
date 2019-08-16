@@ -14,13 +14,17 @@ class addpdf: public pdf
 		virtual ~addpdf();
 		
 		void calculate_frac();
+		double frac(size_t n);
+		size_t number_of_pdfs() { return m_plist.size(); }
+		void set_frac_for_plot(size_t n, double f);
 		
 		// override pdf
-		virtual double evaluate(const double * x);
-		virtual double integral(double a, double b, int n = 0);
-		virtual double norm() { return 1; }
-		virtual bool normalized() { return true; }
-		virtual void set_normset(dataset & normset);
+		double evaluate(const double * x);
+		double evaluate_for_plot(const double * x);
+		double integral(double a, double b, int n = 0);
+		double norm() { return 1; }
+		bool normalized() { return true; }
+		void set_normset(dataset & normset);
 
 	protected:
 		void init();

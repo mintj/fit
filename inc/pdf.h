@@ -37,6 +37,7 @@ class pdf
 		template<typename... T> void plot1d(size_t dim, plot * frame, T... action);
 		
 		virtual double evaluate(const double * x) = 0;
+		virtual double evaluate_for_plot(const double * x) { return evaluate(x); }
 		virtual double integral(double a, double b, int n = 0);
 		virtual double log_sum(dataset * data);
 		virtual double nevt() { return 1; }

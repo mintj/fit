@@ -56,24 +56,20 @@ void df09_projpdf2()
 	
 	TCanvas * c1 = new TCanvas("c1", "", 800, 800);
 	c1->cd();
-	TH1F * h1a = new TH1F("h1a", "", 100, -10, 10);
-	TH1F * h1b = new TH1F("h1b", "", 100, -10, 10);
-	data_x.draw(h1a);
-	bw_x.draw(h1b, h1a);
-	h1b->SetLineColor(2);
-	h1b->Draw("hist same");
-	
+	plot * frame1 = new plot;
+	data_x.plot1d(0, frame1);
+	bw_x.plot1d(0, frame1, msfit::linecolor(2));
+	frame1->draw();
+
 	std::cout << "***************************** fit on y ****************************" << std::endl;
 	bw_y.chi2fit(data_y);
 	
 	TCanvas * c2 = new TCanvas("c2", "", 800, 800);
 	c2->cd();
-	TH1F * h2a = new TH1F("h2a", "", 100, -10, 10);
-	TH1F * h2b = new TH1F("h2b", "", 100, -10, 10);
-	data_y.draw(h2a);
-	bw_y.draw(h2b, h2a);
-	h2b->SetLineColor(2);
-	h2b->Draw("hist same");
+	plot * frame2 = new plot;
+	data_y.plot1d(0, frame2);
+	bw_y.plot1d(0, frame2, msfit::linecolor(2));
+	frame2->draw();
 	
 	std::cout << "***************************** simfit on x+y ****************************" << std::endl;
 	simfit comb;
@@ -89,14 +85,14 @@ void df09_projpdf2()
 	TH1F * h4b = new TH1F("h4b", "", 100, -10, 10);
 	
 	c3->cd(1);
-	data_x.draw(h3a);
-	bw_x.draw(h3b, h3a);
-	h3b->SetLineColor(2);
-	h3b->Draw("hist same");
+	plot * frame3 = new plot;
+	data_x.plot1d(0, frame3);
+	bw_x.plot1d(0, frame3, msfit::linecolor(2));
+	frame3->draw();
 	
 	c3->cd(2);
-	data_y.draw(h4a);
-	bw_y.draw(h4b, h4a);
-	h4b->SetLineColor(2);
-	h4b->Draw("hist same");
+	plot * frame4 = new plot;
+	data_y.plot1d(0, frame4);
+	bw_y.plot1d(0, frame4, msfit::linecolor(2));
+	frame4->draw();
 }

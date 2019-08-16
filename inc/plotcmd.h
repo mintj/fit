@@ -1,6 +1,9 @@
 #ifndef PLOTCMD_H__
 #define PLOTCMD_H__
 
+#include <vector>
+#include <set>
+#include <functional>
 #include "TROOT.h"
 
 namespace msfit
@@ -19,8 +22,7 @@ namespace msfit
 class plotcmd
 {
 	public:
-		static void clear_actions() { sm_hist_actions.clear(); }
-		static void clear_components() { sm_components.clear(); }
+		static void clear() { sm_hist_actions.clear(); sm_components.clear(); }
 		static std::set<int> & components_to_draw() { return sm_components; }
 		static std::vector<std::function<void(TH1F *)>> & hist_actions() { return sm_hist_actions; }
 	

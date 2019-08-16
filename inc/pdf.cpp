@@ -9,6 +9,7 @@
 #include "nllfcn.h"
 #include "pdf.h" 
 #include "plot.h"
+#include "plotcmd.h"
 #include "variable.h"
 
 pdf::pdf():
@@ -163,6 +164,7 @@ double pdf::operator()(double * x)
 
 template<typename... T> void pdf::plot1d(size_t dim, plot * frame, T... action)
 {
+	frame->set_currpdf(this);
 	if (dim < m_dim) {
 		TH1F * h;
 		TH1F * hnorm = frame->normhist();
@@ -176,14 +178,15 @@ template<typename... T> void pdf::plot1d(size_t dim, plot * frame, T... action)
 		}
 		h->SetName(Form("%p", h));
 		frame->add(h, std::forward<T>(action)...);
-		
+	
 		for (size_t u = 0; u < m_normset->size(); ++u) {
 			int bin = h->FindBin(m_normset->at(u)[dim]);
 			if (bin > 0 && bin <= h->GetNbinsX()) {
-				h->Fill(m_normset->at(u)[dim], evaluate(m_normset->at(u))*m_normset->weight(u));
+				h->Fill(m_normset->at(u)[dim], evaluate_for_plot(m_normset->at(u))*m_normset->weight(u));
 			}
 		}
-		if (hnorm) h->Scale(hnorm->Integral() / h->Integral());
+		h->Scale(frame->normalized_nevt() / h->Integral());
+		
 		for (int u = 1; u <= h->GetNbinsX(); ++u) {
 			h->SetBinError(u, 0);
 		}
@@ -192,6 +195,7 @@ template<typename... T> void pdf::plot1d(size_t dim, plot * frame, T... action)
 	else {
 		std::cout << "[pdf] error: allowed dimension for this pdf is 0~" << m_dim-1 << std::endl;
 	}
+	frame->set_currpdf(0);
 }
 
 void pdf::set_normset(dataset & normset)

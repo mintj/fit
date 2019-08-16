@@ -35,6 +35,11 @@ void addpdf::calculate_frac()
 double addpdf::evaluate(const double * x)
 {
 	calculate_frac();
+	return evaluate_for_plot(x);
+}
+		
+double addpdf::evaluate_for_plot(const double * x)
+{
 	double v = 0;
 	for (size_t u = 0; u < m_plist.size(); ++u) {
 		double f = m_frac[u];
@@ -43,6 +48,15 @@ double addpdf::evaluate(const double * x)
 		v += f * scale * raw;
 	}
 	return v;
+}
+
+double addpdf::frac(size_t n)
+{
+	if (n < m_plist.size()) {
+		calculate_frac();
+		return m_frac[n];
+	}
+	return 0;
 }
 
 void addpdf::init()
@@ -72,6 +86,11 @@ double addpdf::integral(double a, double b, int n)
 		tot += f * m_plist[u]->integral(a, b, n);
 	}
 	return tot;
+}
+
+void addpdf::set_frac_for_plot(size_t n, double f)
+{
+	if (n < m_plist.size()) m_frac[n] = f; 
 }
 
 void addpdf::set_normset(dataset & normset)

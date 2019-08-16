@@ -4,6 +4,7 @@
 #include "dataset.h"
 #include "pdf.h"
 #include "plot.h"
+#include "plotcmd.h"
 
 dataset::dataset(size_t s, size_t d):
 	m_nbin(0),

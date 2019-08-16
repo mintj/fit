@@ -3,7 +3,9 @@
 #include "plotcmd.h"
 
 plot::plot():
-	m_normhist(0)
+	m_nevt(1),
+	m_normhist(0),
+	m_currpdf(0)
 {
 }
 
@@ -14,13 +16,6 @@ plot::~plot()
 	}
 }
 
-//void plot::add(TH1F * h)
-//{
-//	m_hist.push_back(h);
-//	m_option[h] = "same";
-//	h->SetDirectory(0);
-//}
-
 template <typename ... T> void plot::add(TH1F * h, const T & ... action)
 {
 	m_hist.push_back(h);
@@ -29,12 +24,43 @@ template <typename ... T> void plot::add(TH1F * h, const T & ... action)
 	for (auto act: plotcmd::hist_actions()) {
 		act(h);
 	}
-	plotcmd::clear_actions();
+
+	m_nevt = m_normhist ? m_normhist->Integral() : 1;
+	auto & comp_set = plotcmd::components_to_draw();
+	addpdf * apdf = dynamic_cast<addpdf *>(m_currpdf);
+	if (apdf) apdf->calculate_frac();
+	if (comp_set.size() && apdf) {
+		double ftot = 0;
+		for (size_t u = 0; u < apdf->number_of_pdfs(); ++u) {
+			if (!(comp_set.find(u) == comp_set.end())) {
+				ftot += apdf->frac(u);
+			}
+		}
+		if (m_normhist) m_nevt = m_normhist->Integral() * ftot;
+		else m_nevt = ftot;
+
+		for (size_t u = 0; u < apdf->number_of_pdfs(); ++u) {
+			bool use = !(comp_set.find(u) == comp_set.end());
+			apdf->set_frac_for_plot(u, use);
+		}
+	}
+	plotcmd::clear();
 }
 
 void plot::draw()
 {
+	double max_height = 0;
+	double min_height = 0;
 	for (auto h: m_hist) {
+		if (h->GetMaximum() > max_height) max_height = h->GetMaximum();
+		if (h->GetMinimum() < max_height) min_height = h->GetMinimum();
+	}
+
+	if (max_height < 0) max_height = 0;
+	if (min_height > 0) min_height = 0;
+	for (auto h: m_hist) {
+		h->SetMaximum(1.1*max_height);
+		h->SetMinimum(min_height);
 		h->Draw(m_option[h]);
 	}
 }
@@ -48,18 +74,8 @@ TH1F * plot::get_hist(const char * name)
 	return 0;
 }
 
-//template <typename T> void plot::set_hist_attribute(TH1F * h, const T & action)
-//{
-//	if (action) action(h);
-//}
-//
-//template <typename T, typename ... TT> void plot::set_hist_attribute(TH1F * h, const T & action, const TT & ... rest)
-//{
-//	if (action) action(h);
-//	set_hist_attribute(h, rest...);
-//}
-
-void plot::set_option(TH1F * h, const char * option)
+void plot::set_normhist(TH1F * h)
 {
-	m_option[h] = option;
+	m_normhist = h;
+	m_nevt = h->Integral();
 }
