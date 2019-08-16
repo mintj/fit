@@ -26,11 +26,10 @@ void df01_fit()
 	
 	TCanvas * c1 = new TCanvas("c1", "", 800, 800);
 	c1->cd();
-	TH1F * h1a = new TH1F("h1a", "", 100, -10, 10);
-	TH1F * h1b = new TH1F("h1b", "", 100, -10, 10);
-	data_gaus.draw(h1a);
-	gaus.draw(h1b, h1a);
-	
+	plot * frame1 = new plot;
+	data_gaus.plot1d(0, frame1);
+	gaus.plot1d(0, frame1, msfit::linecolor(2));
+	frame1->draw();
 	
 	cout << "********************* breit wigner *******************" << endl;
 	variable w("w", 4, 0.3, 20);
@@ -39,10 +38,10 @@ void df01_fit()
 	
 	TCanvas * c2 = new TCanvas("c2", "", 800, 800);
 	c2->cd();
-	TH1F * h2a = new TH1F("h2a", "", 100, -10, 10);
-	TH1F * h2b = new TH1F("h2b", "", 100, -10, 10);
-	data_bw.draw(h2a);
-	bw.draw(h2b, h2a);
+	plot * frame2 = new plot;
+	data_bw.plot1d(0, frame2, msfit::name("bw data"));
+	bw.plot1d(0, frame2, msfit::linecolor(2), msfit::name("bw fit"));
+	frame2->draw();
 
 	cout << "********************* integral ********************" << endl;
 	variable m2("m2", 1);

@@ -32,49 +32,6 @@ void addpdf::calculate_frac()
 	m_frac[m_flist.size()] = 1-ftot;
 }
 
-void addpdf::draw_comp(TH1 * h, size_t n, TH1 * hnorm = 0, const char * option)
-{
-	if (m_dim && n < m_plist.size()) {
-		pdf * p = m_plist[n];
-		h->Reset();
-		for (size_t u = 0; u < m_normset->size(); ++u) {
-			double v = p->evaluate(m_normset->at(u)) * m_normset->weight(u);
-			h->Fill(m_normset->at(u)[0], v);
-		}
-		if (hnorm) h->Scale(hnorm->Integral() / h->Integral());
-		calculate_frac();
-		h->Scale(m_frac[n]);
-		for (int u = 1; u <= h->GetNbinsX(); ++u) {
-			h->SetBinError(u, 0);
-		}
-		h->Draw(option);
-	}
-}
-
-void addpdf::draw_comp(TH2 * h, size_t n, TH2 * hnorm = 0, const char * option)
-{
-	if (m_dim && n < m_plist.size()) {
-		pdf * p = m_plist[n];
-		h->Reset();
-		for (size_t u = 0; u < m_normset->size(); ++u) {
-			double v = p->evaluate(m_normset->at(u)) * m_normset->weight(u);
-			h->Fill(m_normset->at(u)[0], m_normset->at(u)[1], v);
-		}
-		if (hnorm) h->Scale(hnorm->Integral() / h->Integral());
-		calculate_frac();
-		h->Scale(m_frac[n]);
-		for (int u = 1; u <= h->GetNbinsX(); ++u) {
-			for (int v = 1; v <= h->GetNbinsY(); ++v) {
-				h->SetBinError(u, v, 0);
-			}
-		}
-		h->Draw(option);
-	}
-	else {
-		std::cout << "[pdf] error: 1d pdf cannot plot 2d hist" << std::endl;
-	}
-}
-
 double addpdf::evaluate(const double * x)
 {
 	calculate_frac();

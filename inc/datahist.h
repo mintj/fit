@@ -12,10 +12,6 @@ class datahist: public dataset
 		datahist & operator=(const datahist & d) = delete;
 		virtual ~datahist();
 		
-		void draw(TH1 * h, const char * option = "", size_t x = 0, pdf * p = 0);
-		void draw(TH1 * h, std::function<double(double *)> weight_func, const char * option = "", size_t x = 0);
-		void draw(TH2 * h, const char * option = "", size_t x = 0, size_t y = 1, pdf * p = 0) = delete;
-		void draw(TH2 * h, std::function<double(double *)> weight_func, const char * option = "", size_t x = 0, size_t y = 1) = delete;
 		double edge_lo(int n) { return m_edge[n]; }
 		double edge_hi(int n) { return m_edge[n+1]; }
 		double err(int n) { return m_err[n]; }

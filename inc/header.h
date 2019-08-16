@@ -7,6 +7,7 @@
 #include "gaussian.cpp"
 #include "nllfcn.cpp"
 #include "pdf.cpp"
+#include "plot.cpp"
 #include "projpdf.cpp"
 #include "simfit.cpp"
 #include "variable.cpp"

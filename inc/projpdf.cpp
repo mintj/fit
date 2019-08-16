@@ -37,14 +37,6 @@ projpdf::~projpdf()
 {
 }
 
-void projpdf::draw(TH1 * h, TH1 * hnorm, const char * option)
-{
-	const char * name = h->GetName();
-	if (h->IsOnHeap()) delete h;
-	h = new TH1F(name, "", m_binning.size()-1, &m_binning[0]);
-	pdf::draw(h, hnorm, option);
-}
-
 double projpdf::evaluate(const double * x)
 {
 	double v = 0;

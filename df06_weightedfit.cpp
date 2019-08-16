@@ -23,10 +23,10 @@ void df06_weightedfit()
 
 	TCanvas * c1 = new TCanvas("c1");
 	c1->cd();
-	TH1F * h1a = new TH1F("h1a", "", 100, -10, 10);
-	TH1F * h1b = new TH1F("h1b", "", 100, -10, 10);
-	data_bw.draw(h1a);
-	bw.draw(h1b, h1a);
+	plot * frame1 = new plot;
+	data_bw.plot1d(0, frame1);
+	bw.plot1d(0, frame1, msfit::linecolor(2));
+	frame1->draw();
 
 	cout << "********************* gaussian ********************" << endl;
 	variable m2("m2", 1, -10, 10);
@@ -36,12 +36,10 @@ void df06_weightedfit()
 
 	TCanvas * c2 = new TCanvas("c2");
 	c2->cd();
-	TH1F * h2a = new TH1F("h2a", "", 100, -10, 10);
-	TH1F * h2b = new TH1F("h2b", "", 100, -10, 10);
-	data_gaus.draw(h2a);
-	gaus.draw(h2b, h2a);
-	h2b->SetLineColor(2);
-	h2b->Draw("hist same");
+	plot * frame2 = new plot;
+	data_gaus.plot1d(0, frame2);
+	gaus.plot1d(0, frame2, msfit::linecolor(2));
+	frame2->draw();
 
 	cout << "********************* add fit ********************" << endl;
 	variable frac("frac", 0.5, 0, 1);
@@ -50,11 +48,8 @@ void df06_weightedfit()
 
 	TCanvas * c3 = new TCanvas("c3");
 	c3->cd();
-	TH1F * h3a = new TH1F("h3a", "", 100, -10, 10);
-	TH1F * h3b = new TH1F("h3b", "", 100, -10, 10);
-	data_mix.draw(h3a);
-	sum.draw(h3b, h3a);
-	h3b->SetLineColor(2);
-	h3a->Draw("e1");
-	h3b->Draw("hist same");
+	plot * frame3 = new plot;
+	data_mix.plot1d(0, frame3);
+	sum.plot1d(0, frame3, msfit::linecolor(2));
+	frame3->draw();
 }

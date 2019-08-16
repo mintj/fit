@@ -22,40 +22,6 @@ void datahist::acquire_resourse()
 	m_err_up = new double[m_size];
 }
 
-void datahist::draw(TH1 * h, const char * option, size_t x, pdf * p)
-{
-	const char * name = h->GetName();
-	if (h != m_hist) {
-		if (h->IsOnHeap()) delete h;
-		h = (TH1F *)m_hist->Clone(name);
-	}
-	if (p && p->dim() == 1) {
-		for (int u = 1; u <= h->GetNbinsX(); ++u) {
-			double c = h->GetBinContent(u);
-			double e = h->GetBinError(u);
-			double v = p->operator()(&m_arr[u-1]);
-			h->SetBinContent(u, c*v);
-			h->SetBinError(u, e*v);
-		}
-	}
-	h->Draw(option);
-}
-
-void datahist::draw(TH1 * h, std::function<double(double *)> weight_func, const char * option, size_t x)
-{
-	const char * name = h->GetName();
-	if (h->IsOnHeap()) delete h;
-	h = (TH1F *)m_hist->Clone(name);
-	for (int u = 1; u <= h->GetNbinsX(); ++u) {
-		double c = h->GetBinContent(u);
-		double e = h->GetBinError(u);
-		double v = weight_func(&m_arr[u-1]);
-		h->SetBinContent(u, c*v);
-		h->SetBinError(u, e*v);
-	}
-	h->Draw(option);
-}
-
 bool datahist::init_from_h1d(TH1 * h)
 {
 	m_wsize = 0;

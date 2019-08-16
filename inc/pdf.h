@@ -24,8 +24,6 @@ class pdf
 		chi2fcn * create_chi2(datahist * data);
 		nllfcn * create_nll(dataset * data);
 		size_t dim() { return m_dim; }
-		void draw(TH1 * h, TH1 * hnorm = 0, const char * option = "hist same");
-		void draw(TH2 * h, TH2 * hnorm = 0, const char * option = "hist same");
 		void fit(dataset & data, bool minos_err = false);
 		double get_lastvalue(int n);
 		std::vector<double> & get_lastvalues();
@@ -35,6 +33,7 @@ class pdf
 		dataset * normset() { return m_normset; }
 		size_t npar() { return m_varlist.size(); }
 		double operator()(double * x);
+		template<typename... T> void plot1d(size_t dim, plot * frame, T... action);
 		
 		virtual double evaluate(const double * x) = 0;
 		virtual double integral(double a, double b, int n = 0);

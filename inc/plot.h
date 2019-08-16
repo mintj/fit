@@ -11,13 +11,16 @@ class plot
 	public:
 		plot();
 		virtual ~plot();
-		template<typename...T> TH1F * add(TH1F * h, T... action);
+		void add(TH1F * h);
+		template <typename ... T> void add(TH1F * h, const T & ... action);
 		void draw();
 		TH1F * get(const char * name);
-		void set_attribute(TH1F * h, std::function<void(TH1F *)> action);
-		template<typename...T> void set_attribute(TH1F * h, std::function<void(TH1F *)> action, T... rest);
+		TH1F * normhist() { return m_normhist; }
 		void set_normhist(TH1F * h) { m_normhist = h; }
 		void set_option(TH1F * h, const char * option);
+		
+		template <typename T> static void set_hist_attribute(TH1F * h, const T & action);
+		template <typename T, typename ... TT> static void set_hist_attribute(TH1F * h, const T & action, const TT & ... rest);
 	
 	private:
 		TH1F * m_normhist;

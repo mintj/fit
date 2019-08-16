@@ -14,9 +14,6 @@ class projpdf: public pdf
 		projpdf(const std::vector<variable *> & vlist, dataset & normset, size_t pdim, size_t nbin, const double * binning);
 		virtual ~projpdf();
 		
-		void draw(TH1 * h, TH1 * hnorm = 0, const char * option = "hist same");
-		void draw(TH2 * h, TH2 * hnorm = 0, const char * option = "hist same") = delete;
-
 		// override pdf
 		virtual double evaluate(const double * x);
 		

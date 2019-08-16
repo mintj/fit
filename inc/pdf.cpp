@@ -62,39 +62,6 @@ chi2fcn * pdf::create_chi2(datahist * data)
 	return m_chi2.get();
 }
 
-void pdf::draw(TH1 * h, TH1 * hnorm, const char * option)
-{
-	if (m_dim) {
-		m_normset->draw(h, option, 0, this);
-		for (int u = 1; u <= h->GetNbinsX(); ++u) {
-			h->SetBinError(u, 0);
-		}
-		if (hnorm) {
-			double anorm = calculate_area(hnorm);
-			double a = calculate_area(h);
-			h->Scale(anorm/a);
-		}
-	}
-}
-
-void pdf::draw(TH2 * h, TH2 * hnorm, const char * option)
-{
-	if (m_dim >= 2) {
-		m_normset->draw(h, option, 0, 1, this);
-		for (int u = 1; u <= h->GetNbinsX(); ++u) {
-			for (int v = 1; v <= h->GetNbinsY(); ++v) {
-				h->SetBinError(u, v, 0);
-			}
-		}
-		if (hnorm && h->Integral()) {
-			h->Scale(hnorm->Integral() / h->Integral()); // TODO: how to deal with coarse binning?
-		}
-	}
-	else {
-		std::cout << "[pdf] error: 1d pdf cannot plot 2d hist" << std::endl;
-	}
-}
-
 void pdf::fit(dataset & data, bool minos_err)
 {
 	nllfcn * nll = create_nll(&data);
@@ -190,6 +157,39 @@ int pdf::normalize()
 double pdf::operator()(double * x)
 {
 	return norm()*evaluate(x);
+}
+
+template<typename... T> void pdf::plot1d(size_t dim, plot * frame, T... action)
+{
+	if (dim < m_dim) {
+		TH1F * h;
+		TH1F * hnorm = frame->normhist();
+		if (hnorm) {
+			h = (TH1F *)hnorm->Clone("unnamed");
+		}
+		else {
+			double xmin = m_normset->min(dim);
+			double xmax = m_normset->max(dim);
+			h = new TH1F("unnamed", "", 100, xmin, xmax);
+		}
+		h->SetName(Form("%p", h));
+		frame->add(h, std::forward<T>(action)...);
+		
+		for (size_t u = 0; u < m_normset->size(); ++u) {
+			int bin = h->FindBin(m_normset->at(u)[dim]);
+			if (bin > 0 && bin <= h->GetNbinsX()) {
+				h->Fill(m_normset->at(u)[dim], evaluate(m_normset->at(u))*m_normset->weight(u));
+			}
+		}
+		if (hnorm) h->Scale(hnorm->Integral() / h->Integral());
+		for (int u = 1; u <= h->GetNbinsX(); ++u) {
+			h->SetBinError(u, 0);
+		}
+		frame->set_option(h, "hist same");
+	}
+	else {
+		std::cout << "[pdf] error: allowed dimension for this pdf is 0~" << m_dim-1 << std::endl;
+	}
 }
 
 void pdf::set_normset(dataset & normset)
