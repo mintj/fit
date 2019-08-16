@@ -10,6 +10,7 @@ class chi2fcn;
 class datahist;
 class dataset;
 class nllfcn;
+class plot;
 class variable;
 
 class pdf

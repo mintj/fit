@@ -8,6 +8,7 @@
 #include "nllfcn.cpp"
 #include "pdf.cpp"
 #include "plot.cpp"
+#include "plotcmd.cpp"
 #include "projpdf.cpp"
 #include "simfit.cpp"
 #include "variable.cpp"

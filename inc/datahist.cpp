@@ -1,5 +1,7 @@
 #include <iostream>
+#include "TString.h"
 #include "datahist.h"
+#include "plot.h"
 
 datahist::datahist(TH1 * h):
 	dataset(h->GetNbinsX(), 1),
@@ -46,6 +48,19 @@ double datahist::max(int n)
 double datahist::min(int n)
 {
 	return m_edge[m_size];
+}
+
+template<typename... T> void datahist::plot1d(size_t dim, plot * frame, T... action)
+{
+	if (dim) {
+		std::cout << "[datahist] warning: 'datahist' is 1d data, dimension argument in 'plot1d' method is ignored" << endl;
+	}
+	TH1F * h = (TH1F *)m_hist->Clone();
+	h->SetName(Form("%p", h));
+
+	frame->add(h, std::forward<T>(action)...);
+	frame->set_normhist(h);
+	frame->set_option(h, "e same");
 }
 
 void datahist::release_resourse()

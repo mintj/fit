@@ -1,4 +1,5 @@
 #include <iostream>
+#include "TString.h"
 #include "Minuit2/FunctionMinimum.h"
 #include "Minuit2/MnMigrad.h"
 #include "Minuit2/MnMinos.h"
@@ -7,6 +8,7 @@
 #include "fcn.h"
 #include "nllfcn.h"
 #include "pdf.h" 
+#include "plot.h"
 #include "variable.h"
 
 pdf::pdf():
@@ -165,7 +167,7 @@ template<typename... T> void pdf::plot1d(size_t dim, plot * frame, T... action)
 		TH1F * h;
 		TH1F * hnorm = frame->normhist();
 		if (hnorm) {
-			h = (TH1F *)hnorm->Clone("unnamed");
+			h = (TH1F *)hnorm->Clone();
 		}
 		else {
 			double xmin = m_normset->min(dim);
