@@ -58,6 +58,7 @@ template<typename... T> void datahist::plot_on(plot * frame, T... action)
 	}
 	TH1F * h = frame->generate_hist(this, dim);
 	frame->add(h, std::forward<T>(action)...);
+	frame->fill(h, this, dim);
 }
 
 void datahist::release_resourse()

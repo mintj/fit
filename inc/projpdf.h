@@ -15,9 +15,11 @@ class projpdf: public pdf
 		virtual ~projpdf();
 
 		const std::vector<double> & get_binning() { return m_binning; }
+		size_t proj_dim() { return m_pdim; }
 		
 		// override pdf
-		virtual double evaluate(const double * x);
+		double evaluate(const double * x);
+		double norm();
 		
 		virtual double func_weight(const double * x) = 0;
 
@@ -26,6 +28,7 @@ class projpdf: public pdf
 		void init(size_t pdim);
 
 	protected:
+		size_t m_pdim;
 		std::vector<double> m_binning;
 		std::vector<double> m_bin_totweight;
 		std::vector<std::vector<double *>> m_bin_data;

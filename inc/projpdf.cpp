@@ -3,7 +3,8 @@
 #include "variable.h"
 		
 projpdf::projpdf(const std::vector<variable *> & vlist, dataset & normset, size_t pdim, size_t nbin, double lo, double hi):
-	pdf(1, vlist, normset)
+	pdf(1, vlist, normset),
+	m_pdim(pdim)
 {
 	assert(pdim < normset.dim() && nbin > 0);
 	double xlo = (lo < hi) ? lo : hi;
@@ -21,7 +22,8 @@ projpdf::projpdf(const std::vector<variable *> & vlist, dataset & normset, size_
 }
 
 projpdf::projpdf(const std::vector<variable *> & vlist, dataset & normset, size_t pdim, size_t nbin, const double * binning):
-	pdf(1, vlist, normset)
+	pdf(1, vlist, normset),
+	m_pdim(pdim)
 {
 	assert(pdim < normset.dim() && nbin > 0);
 	for (size_t u = 0; u <= nbin; ++u) {
@@ -73,4 +75,23 @@ void projpdf::init(size_t pdim)
 			m_bin_totweight[bin] += m_normset->weight(u);
 		}
 	}
+}
+
+double projpdf::norm()
+{
+	m_norm = 1;
+	if (m_normset) {
+		double v = 0;
+		for (size_t u = 0; u < m_normset->size(); ++u) {
+			v += func_weight(m_normset->at(u)) * m_normset->weight(u);
+		}
+		if (v) {
+			m_norm = 1.0/v;
+			m_status = 0;
+		}
+		else m_status = 1;
+	}
+	else m_status = -1;
+
+	return m_norm;
 }

@@ -71,6 +71,45 @@ void plot::draw()
 	}
 }
 
+void plot::fill(TH1F * h, dataset * d, size_t dim)
+{
+	datahist * dh = dynamic_cast<datahist *>(d);
+	if (!dh) {
+		for (size_t u = 0; u < d->size(); ++u) {
+			h->Fill(d->at(u)[dim], d->weight(u));
+		}
+	}
+}
+
+void plot::fill(TH1F * h, pdf * p, size_t dim)
+{
+	dataset * normset = p->normset();
+	projpdf * pp = dynamic_cast<projpdf *>(p);
+	int dim_shift = 0;
+	if (pp) {
+		size_t pdim = pp->proj_dim();
+		for (size_t u = 0; u < normset->size(); ++u) {
+			int bin = h->FindBin(normset->at(u)[pdim]);
+			if (bin > 0 && bin <= h->GetNbinsX()) {
+				h->Fill(normset->at(u)[pdim], pp->func_weight(normset->at(u)) * normset->weight(u));
+			}
+		}
+	}
+	else {
+		for (size_t u = 0; u < normset->size(); ++u) {
+			int bin = h->FindBin(normset->at(u)[dim]);
+			if (bin > 0 && bin <= h->GetNbinsX()) {
+				h->Fill(normset->at(u)[dim], p->evaluate_for_plot(normset->at(u)) * normset->weight(u));
+			}
+		}
+	}
+	h->Scale(normalized_nevt() / h->Integral());
+
+	for (int u = 1; u <= h->GetNbinsX(); ++u) {
+		h->SetBinError(u, 0);
+	}
+}
+
 TH1F * plot::generate_hist(dataset * d, size_t dim)
 {
 	TH1F * h;

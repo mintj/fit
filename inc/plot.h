@@ -17,6 +17,8 @@ class plot
 		
 		template <typename ... T> void add(TH1F * h, const T & ... action);
 		void draw();
+		void fill(TH1F * h, dataset * d, size_t dim);
+		void fill(TH1F * h, pdf * p, size_t dim);
 		TH1F * generate_hist(dataset * d, size_t dim);
 		TH1F * generate_hist(pdf * p, size_t dim);
 		TH1F * get_hist(const char * name);

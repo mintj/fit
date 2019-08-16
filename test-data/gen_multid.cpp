@@ -1,12 +1,12 @@
 TRandom3 rndm;
 double xlo = -10;
 double xhi = 10;
-double ylo = -10;
-double yhi = 10;
+double ylo = 0;
+double yhi = 20;
 
 bool evt_sel(double x, double y)
 {
-	double r2 = x*x + y*y;
+	double r2 = x*x + (y-10)*(y-10);
 	if (r2 > 120) return 0;
 	else return (rndm.Rndm() > 0.2*r2/120);
 }
@@ -45,8 +45,8 @@ void gen_multid()
 			x = rndm.Uniform(xlo, xhi);
 			y = rndm.Uniform(ylo, yhi);
 		} while(!evt_sel(x, y));
-		w1 = gaus2d(x, y, 1, 3.5, -4.5, 1, -0.5);
-		w2 = bw_gaus(x, y, 2.2, 3.5, -4.2, 1.9);
+		w1 = gaus2d(x, y, 1, 3.5, 0.5, 1, -0.5);
+		w2 = bw_gaus(x, y, 2.2, 3.5, 1, 1.9);
 		w3 = bw(x, 4.4, 1.7);
 		t->Fill();
 	}

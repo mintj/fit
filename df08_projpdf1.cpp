@@ -62,7 +62,7 @@ void df08_projpdf1()
 	TFile * f = TFile::Open("test-data/weighted_2d.root");
 	TTree * t = (TTree *)f->Get("t");
 
-	double ybinning[16] = {-10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 2, 4, 6, 8, 10};
+	double ybinning[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20};
 	TH1F * h1 = new TH1F("h1", "", 20, -10, 10);
 	TH1F * h2 = new TH1F("h2", "", 15, ybinning);
 	t->Draw("x>>h1", "w2", "goff");
@@ -73,33 +73,27 @@ void df08_projpdf1()
 	datahist data_y(h2);
 
 	variable m1("m1", 1, -10, 10);
-	variable w("w", 4, 0.1, 20);
+	variable w("w", 1, 0.1, 20);
 	bw_proj bw_x(m1, w, data_2d_norm, 0, 20, -10, 10);
-	bw_x.chi2fit(data_x);
+	bw_x.fit(data_x);
 	
-	variable m2("m2", 1, -10, 10);
-	variable s("s", 4, 0.1, 20);
+	variable m2("m2", 10, 0, 20);
+	variable s("s", 5, 0.1, 20);
 	gaus_proj gaus_y(m2, s, data_2d_norm, 1, 15, ybinning);
-	gaus_y.chi2fit(data_y);
+	gaus_y.fit(data_y);
 
 	TCanvas * c = new TCanvas("c", "", 1600, 800);
 	c->Divide(2, 1);
-	TH1F * h1a = new TH1F("h1a", "", 100, -10, 10);
-	TH1F * h1b = new TH1F("h1b", "", 100, -10, 10);
-	TH1F * h2a = new TH1F("h2a", "", 100, -10, 10);
-	TH1F * h2b = new TH1F("h2b", "", 100, -10, 10);
 
 	c->cd(1);
-	data_x.draw(h1a);
-	bw_x.draw(h1b, h1a);
-	h1b->SetLineColor(2);
-	h1a->Draw();
-	h1b->Draw("hist same");
+	plot * frame1 = new plot;
+	data_x.plot_on(frame1);
+	bw_x.plot_on(frame1, msfit::linecolor(2));
+	frame1->draw();
 
 	c->cd(2);
-	data_y.draw(h2a);
-	gaus_y.draw(h2b, h2a);
-	h2b->SetLineColor(2);
-	h2a->Draw();
-	h2b->Draw("hist same");
+	plot * frame2 = new plot;
+	data_y.plot_on(frame2);
+	gaus_y.plot_on(frame2, msfit::linecolor(2));
+	frame2->draw();
 }

@@ -36,7 +36,7 @@ void df09_projpdf2()
 	TFile * f = TFile::Open("test-data/weighted_2d.root");
 	TTree * t = (TTree *)f->Get("t");
 
-	double ybinning[16] = {-10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 0, 2, 4, 6, 8, 10};
+	double ybinning[16] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20};
 	TH1F * h1 = new TH1F("h1", "", 20, -10, 10);
 	TH1F * h2 = new TH1F("h2", "", 15, ybinning);
 	t->Draw("x>>h1", "w3", "goff");
@@ -46,7 +46,7 @@ void df09_projpdf2()
 	datahist data_x(h1);
 	datahist data_y(h2);
 
-	variable m("m", 1, -10, 10);
+	variable m("m", 1, -10, 20);
 	variable w("w", 4, 0.1, 20);
 	bw_proj bw_x(m, w, data_2d_norm, 0, 20, -10, 10);
 	bw_proj bw_y(m, w, data_2d_norm, 1, 15, ybinning);
@@ -62,7 +62,7 @@ void df09_projpdf2()
 	frame1->draw();
 
 	std::cout << "***************************** fit on y ****************************" << std::endl;
-	bw_y.chi2fit(data_y);
+	bw_y.fit(data_y);
 	
 	TCanvas * c2 = new TCanvas("c2", "", 800, 800);
 	c2->cd();
@@ -75,14 +75,10 @@ void df09_projpdf2()
 	simfit comb;
 	comb.add(bw_x, data_x);
 	comb.add(bw_y, data_y);
-	comb.chi2fit(true);
+	comb.fit();
 	
 	TCanvas * c3 = new TCanvas("c3", "", 1600, 800);
 	c3->Divide(2, 1);
-	TH1F * h3a = new TH1F("h3a", "", 100, -10, 10);
-	TH1F * h3b = new TH1F("h3b", "", 100, -10, 10);
-	TH1F * h4a = new TH1F("h4a", "", 100, -10, 10);
-	TH1F * h4b = new TH1F("h4b", "", 100, -10, 10);
 	
 	c3->cd(1);
 	plot * frame3 = new plot;

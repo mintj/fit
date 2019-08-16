@@ -169,18 +169,7 @@ template<typename... T> void pdf::plot_on(plot * frame, T... action)
 	if (dim < m_dim) {
 		TH1F * h = frame->generate_hist(this, dim);
 		frame->add(h, std::forward<T>(action)...);
-	
-		for (size_t u = 0; u < m_normset->size(); ++u) {
-			int bin = h->FindBin(m_normset->at(u)[dim]);
-			if (bin > 0 && bin <= h->GetNbinsX()) {
-				h->Fill(m_normset->at(u)[dim], evaluate_for_plot(m_normset->at(u))*m_normset->weight(u));
-			}
-		}
-		h->Scale(frame->normalized_nevt() / h->Integral());
-		
-		for (int u = 1; u <= h->GetNbinsX(); ++u) {
-			h->SetBinError(u, 0);
-		}
+		frame->fill(h, this, dim);
 	}
 	else {
 		std::cout << "[pdf] error: project dimension in request (" << dim << ") is not allowed for this pdf (0~" << m_dim-1 << ")" << std::endl;

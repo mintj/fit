@@ -153,9 +153,7 @@ template <typename ... T> void dataset::plot_on(plot * frame, T ... action)
 	if (dim < m_dim) {
 		TH1F * h = frame->generate_hist(this, dim);
 		frame->add(h, std::forward<T>(action)...);
-		for (size_t u = 0; u < m_size; ++u) {
-			h->Fill(at(u)[dim], weight(u));
-		}
+		frame->fill(h, this, dim);
 	}
 	else {
 		std::cout << "[dataset] error: project dimension in request (" << dim << ") is not allowed for this dataset (0~" << m_dim-1 << ")" << std::endl;
