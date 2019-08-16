@@ -1,4 +1,4 @@
-# fit
+# msfit
 
 # 0. Introduction
 
