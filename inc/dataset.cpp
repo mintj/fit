@@ -50,6 +50,24 @@ void dataset::acquire_resourse()
 	}
 }
 
+void dataset::add_to_hist(TH1 * h, size_t dim)
+{
+	if (dim < m_dim) {
+		for (size_t u = 0; u < m_size; ++u) {
+			h->Fill(at(u)[dim], weight(u));
+		}
+	}
+}
+
+void dataset::add_to_hist(TH2 * h, size_t dimx, size_t dimy)
+{
+	if (dimx < m_dim && dimy < m_dim) {
+		for (size_t u = 0; u < m_size; ++u) {
+			h->Fill(at(u)[dimx], at(u)[dimy], weight(u));
+		}
+	}
+}
+
 bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varname)
 {
 	std::map<std::string, double> dmap;
@@ -173,4 +191,20 @@ void dataset::plot2d(TH2 * h, const char * option, size_t dimx, size_t dimy)
 		std::cout << "[dataset] error: project dimension in request (" << dimx << ", " << dimy << ") is not allowed for this dataset (0~" << m_dim-1 << ")" << std::endl;
 	}
 	h->Draw(option);
+}
+
+void dataset::project_to_hist(TH1 * h, size_t dim)
+{
+	if (dim < m_dim) {
+		h->Reset();
+		add_to_hist(h, dim);
+	}
+}
+
+void dataset::project_to_hist(TH2 * h, size_t dimx, size_t dimy)
+{
+	if (dimx < m_dim && dimy < m_dim) {
+		h->Reset();
+		add_to_hist(h, dimx, dimy);
+	}
 }

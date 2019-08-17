@@ -75,12 +75,12 @@ void df08_projpdf1()
 	variable m1("m1", 1, -10, 10);
 	variable w("w", 1, 0.1, 20);
 	bw_proj bw_x(m1, w, data_2d_norm, 0, 20, -10, 10);
-	bw_x.fit(data_x);
+	bw_x.chi2fit(data_x);
 	
 	variable m2("m2", 10, 0, 20);
 	variable s("s", 5, 0.1, 20);
 	gaus_proj gaus_y(m2, s, data_2d_norm, 1, 15, ybinning);
-	gaus_y.fit(data_y);
+	gaus_y.chi2fit(data_y);
 
 	TCanvas * c = new TCanvas("c", "", 1600, 800);
 	c->Divide(2, 1);

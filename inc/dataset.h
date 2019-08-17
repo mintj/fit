@@ -25,13 +25,17 @@ class dataset
 		template<typename... T> void plot_on(plot * frame, T... action);
 		void plot2d(TH2 * h, const char * option = "colz", size_t dimx = 0, size_t dimy = 1);
 		void set_nbin(size_t n) { m_nbin = n; }
-		void set_val(size_t n, size_t d, double v) { m_arr[n*m_size+d] = v; }
-		void set_weight(size_t n, double w) { m_weight[n] = w; }
+		void set_val(size_t n, size_t d, double v) { m_arr[n*m_size+d] = v; } // to delete?
+		void set_weight(size_t n, double w) { m_weight[n] = w; } // to delete?
 		size_t size() { return m_size; }
 		double weight(size_t n) { return m_weight[n]; }
 		
+		virtual void add_to_hist(TH1 * h, size_t dim);
+		virtual void add_to_hist(TH2 * h, size_t dimx, size_t dimy);
 		virtual double max(int n = 0);
 		virtual double min(int n = 0);
+		virtual void project_to_hist(TH1 * h, size_t dim);
+		virtual void project_to_hist(TH2 * h, size_t dimx, size_t dimy);
 
 	private:
 		void acquire_resourse();

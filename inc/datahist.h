@@ -20,12 +20,15 @@ class datahist: public dataset
 		double err_down(int n) { return m_err_down[n]; }
 		double err_up(int n) { return m_err_up[n]; }
 		int find_bin(double x) { return m_hist->FindBin(x)-1; }
-		double max(int n = 0);
-		double min(int n = 0);
 		template<typename... T> void plot_on(plot * frame, T... action);
 		void plot2d(size_t dimx, size_t dimy, TH2 * h) = delete;
 		TH1 * source_hist() { return m_hist; }
 		double width(int n) { return edge_hi(n) - edge_lo(n); }
+		
+		virtual void add_to_hist(TH1 * h, size_t dim);
+		double max(int n = 0);
+		double min(int n = 0);
+		virtual void project_to_hist(TH1 * h, size_t dim);
 
 	private:
 		void acquire_resourse();

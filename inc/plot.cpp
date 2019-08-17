@@ -87,13 +87,13 @@ void plot::fill(TH1F * h, pdf * p, size_t dim)
 	projpdf * pp = dynamic_cast<projpdf *>(p);
 	int dim_shift = 0;
 	if (pp) {
-		size_t pdim = pp->proj_dim();
-		for (size_t u = 0; u < normset->size(); ++u) {
-			int bin = h->FindBin(normset->at(u)[pdim]);
-			if (bin > 0 && bin <= h->GetNbinsX()) {
-				h->Fill(normset->at(u)[pdim], pp->func_weight(normset->at(u)) * normset->weight(u));
-			}
-		}
+		//size_t pdim = pp->proj_dim();
+		//for (size_t u = 0; u < normset->size(); ++u) {
+		//	int bin = h->FindBin(normset->at(u)[pdim]);
+		//	if (bin > 0 && bin <= h->GetNbinsX()) {
+		//		h->Fill(normset->at(u)[pdim], pp->func_weight(normset->at(u)) * normset->weight(u));
+		//	}
+		//}
 	}
 	else {
 		for (size_t u = 0; u < normset->size(); ++u) {
@@ -136,8 +136,8 @@ TH1F * plot::generate_hist(pdf * p, size_t dim)
 	TH1F * h;
 	projpdf * pp = dynamic_cast<projpdf *>(p);
 	if (pp) {
-		auto & binning = pp->get_binning();
-		h = new TH1F("unnamed", "", binning.size()-1, &binning.at(0));
+		pp->normalize();
+		h = (TH1F *)pp->hist()->Clone();
 	}
 	else {
 		if (m_normhist) {

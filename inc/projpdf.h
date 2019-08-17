@@ -2,6 +2,7 @@
 #define PROJPDF_H__
 
 #include <vector>
+#include "TH1F.h"
 #include "pdf.h"
 
 class variable;
@@ -14,25 +15,24 @@ class projpdf: public pdf
 		projpdf(const std::vector<variable *> & vlist, dataset & normset, size_t pdim, size_t nbin, const double * binning);
 		virtual ~projpdf();
 
-		const std::vector<double> & get_binning() { return m_binning; }
+		TH1F * hist() { return m_hist; }
 		size_t proj_dim() { return m_pdim; }
 		
 		// override pdf
 		double evaluate(const double * x);
 		double norm();
+		int normalize();
 		
 		virtual double func_weight(const double * x) = 0;
 
 	protected:
-		int find_bin(double x);
-		void init(size_t pdim);
+		void init();
+		void project_to_hist();
 
 	protected:
 		size_t m_pdim;
-		std::vector<double> m_binning;
-		std::vector<double> m_bin_totweight;
-		std::vector<std::vector<double *>> m_bin_data;
-		std::vector<std::vector<double>> m_bin_weight;
+		std::vector<double> m_bin_weight;
+		TH1F * m_hist;
 };
 
 #endif
