@@ -1,5 +1,8 @@
 #include <iostream>
+
 #include "variable.h"
+#include "plot.h"
+#include "util.h"
 
 variable::variable(const char * name, double v)
 {
@@ -11,6 +14,7 @@ variable::variable(const char * name, double v)
 	m_err_down = 0;
 	m_err_up = 0;
 	m_constant = true;
+	m_bins = 100;
 	add_to_pool();
 }
 
@@ -24,6 +28,7 @@ variable::variable(const char * name, double d, double u)
 	m_err_down = m_err;
 	m_err_up = m_err;
 	m_constant = false;
+	m_bins = 100;
 	add_to_pool();
 }
 
@@ -37,6 +42,7 @@ variable::variable(const char * name, double v, double d, double u)
 	m_err_down = m_err;
 	m_err_up = m_err;
 	m_constant = false;
+	m_bins = 100;
 	add_to_pool();
 }
 		
@@ -47,18 +53,24 @@ variable::~variable()
 void variable::add_to_pool()
 {
 	if (var_pool.find(m_name) != var_pool.end()) {
-		std::cout << "warning: variable named [" << m_name << "] already exists, the old one will be overwritten" << std::endl;
+		MSG_WARNING("variable [", m_name, "] already exists, will be overwritten by new one");
 	}
 	var_pool[m_name] = this;
 }
 
-variable & variable::var(const char * name)
+plot * variable::frame()
+{
+	plot * f = new plot(*this);
+	return f;
+}
+
+variable * variable::var(const char * name)
 {
 	if (var_pool.find(name) == var_pool.end()) {
-		std::cout << "warning: variable named [" << name << "] does not exist, a new one will be created" << std::endl;
-		variable tmp(name);
+		MSG_ERROR("variable '", name, "' does not exist");
+		return 0;
 	}
-	return *var_pool.find(name)->second;
+	return var_pool.find(name)->second;
 }
 
 std::map<const char *, variable *> variable::var_pool;

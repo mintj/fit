@@ -1,16 +1,14 @@
 #include <iostream>
 #include <cmath>
-#include "addpdf.h"
+#include "abspdf.h"
+#include "datahist.h"
 #include "dataset.h"
-#include "fcn.h"
 #include "nllfcn.h"
-#include "pdf.h"
+#include "util.h"
 #include "variable.h"
 
-nllfcn::nllfcn(pdf * p, dataset * d):
-	fcn(p, d),
-	m_arr_logsum(1),
-	m_arr_norm(1, -1)
+nllfcn::nllfcn(abspdf * p, absdata * d):
+	absfcn(p, d)
 {
 }
 
@@ -18,30 +16,92 @@ nllfcn::~nllfcn()
 {
 }
 
-void nllfcn::add(pdf * p, dataset * d)
+bool nllfcn::init()
 {
-	fcn::add(p, d);
-	m_arr_logsum.push_back(1);
-	m_arr_norm.push_back(-1);
+	m_arr_rdata.resize(0);
+	m_arr_logsum.resize(0);
+	
+	std::vector<std::vector<int>> idvv;
+	for (size_t u = 0; u < m_datalist.size(); ++u) {
+		abspdf * p = m_pdflist[u];
+		absdata * d = m_datalist[u];
+		
+		std::vector<int> idv;
+		for (variable * var: p->var_list()) {
+			int dim = d->get_dim(var);
+			if (dim < 0) {
+				MSG_ERROR("data '", d->name(), "' does not contain all variables of pdf '", p->name(), "'");
+				return false;
+			}
+			idv.push_back(dim);
+		}
+		idvv.push_back(idv);
+	}
+	
+	for (size_t u = 0; u < m_datalist.size(); ++u) {
+		abspdf * p = m_pdflist[u];
+		absdata * d = m_datalist[u];
+		
+		std::vector<double> rdata;
+		for (size_t v = 0; v < d->size(); ++v) {
+			for (size_t id: idvv[u]) {
+				rdata.push_back(d->at(v)[id]);
+			}
+		}
+		m_arr_rdata.push_back(rdata);
+	}
+
+	return true;
+}
+
+void nllfcn::minimize(bool minos_err)
+{
+	if (init()) {
+		absfcn::minimize(minos_err);
+	}
 }
 
 double nllfcn::operator()(const std::vector<double> & par) const
 {
-	for (size_t u = 0; u < m_varlist.size(); ++u) {
-		m_varlist[u]->set_value(par[u]);
-		//cout << u << " " << par[u] << endl;
+	for (size_t u = 0; u < m_paralist.size(); ++u) {
+		m_paralist[u]->set_value(par[u]);
+		//std::cout << u << " " << par[u] << std::endl;
+	}
+
+	bool newcall = false;
+	if (!m_arr_logsum.size()) {
+		m_arr_logsum.resize(m_arr_rdata.size());
+		newcall = true;
 	}
 
 	double nll = 0;
 	for (size_t u = 0; u < m_pdflist.size(); ++u) {
-		pdf * p = m_pdflist[u];
-		dataset * d = m_datalist[u];
-		if (p->updated() || m_arr_norm[u] < 0) {
-			m_arr_logsum[u] = p->log_sum(d);
-			m_arr_norm[u] = p->norm();
+		abspdf * p = m_pdflist[u];
+		absdata * d = m_datalist[u];
+		if (p->updated() || newcall) {
+			double logsum = 0;
+
+			dataset * ds = dynamic_cast<dataset *>(d);
+			if (ds) {
+				for (size_t v = 0; v < d->size(); ++v) {
+					double rv = p->evaluate(&m_arr_rdata[u][v]);
+					if (rv > 0) {
+						logsum += log(rv) * d->weight(v);
+					}
+					else {
+						MSG_WARNING("negative pdf value will be ignored during fit, it might cause a fail fit");
+					}
+				}
+				logsum += log(p->norm()) * d->nevt();
+			}
+
+			datahist * dh = dynamic_cast<datahist *>(d);
+			if (dh) {
+			}
+			
+			m_arr_logsum[u] = logsum;
 		}
 		nll -= m_arr_logsum[u];
-		nll -= log(m_arr_norm[u])*d->nevt();
 	}
 	return nll;
 }

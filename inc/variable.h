@@ -3,6 +3,8 @@
 
 #include <map>
 
+class plot;
+
 class variable
 {
 	public:
@@ -11,28 +13,33 @@ class variable
 		variable(const char * name, double v, double d, double u);
 		virtual ~variable();
 		
-		bool constant() { return m_constant; }
-		double err() { return m_err; }
-		double err_down() { return m_err_down; }
-		double err_up() { return m_err_up; }
-		double limit_down() { return m_limit_down; }
-		double limit_up() { return m_limit_up; }
-		const char * name() { return m_name; }
+		size_t bins() const { return m_bins; }
+		bool constant() const { return m_constant; }
+		double err() const { return m_err; }
+		double err_down() const { return m_err_down; }
+		double err_up() const { return m_err_up; }
+		plot * frame();
+		double limit_down() const { return m_limit_down; }
+		double limit_up() const { return m_limit_up; }
+		const char * name() const { return m_name; }
+		double value() const { return m_value; }
+		
 		void set_constant(bool flag) { m_constant = flag; }
 		void set_err(double v) { m_err = v; }
 		void set_err_down(double v) { m_err_down = v; }
 		void set_err_up(double v) { m_err_up = v; }
 		void set_limit_down(double v) { m_limit_down = v; }
 		void set_limit_up(double v) { m_limit_up = v; }
+		void set_bins(size_t n) { m_bins = n; }
 		void set_value(double v) { m_value = v; }
-		double value() { return m_value; }
 		
-		static variable & var(const char * name);
+		static variable * var(const char * name);
 	
 	private:
 		void add_to_pool();
 
-	public:
+	private:
+		size_t m_bins;
 		bool m_constant;
 		double m_err;
 		double m_err_down;

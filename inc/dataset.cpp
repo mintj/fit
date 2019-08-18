@@ -1,210 +1,120 @@
-#include <iostream>
 #include "TLeaf.h"
 #include "TString.h"
 #include "dataset.h"
-#include "pdf.h"
-#include "plot.h"
-#include "plotcmd.h"
+#include "util.h"
+#include "variable.h"
 
-dataset::dataset(size_t s, size_t d):
-	m_nbin(0),
-	m_size(s),
-	m_dim(d)
+dataset::dataset(const char * name, variable & x):
+	absdata(name, x, 0)
 {
-	acquire_resourse();
+}
+dataset::dataset(const char * name, const std::vector<variable> & xvec):
+	absdata(name, xvec, 0)
+{
 }
 
-dataset::dataset(TTree * t, const std::vector<const char *> & varname):
-	m_nbin(0),
-	m_size(t->GetEntries()),
-	m_dim(varname.size())
+dataset::dataset(const char * name, TTree * t, variable & x, const char * wname):
+	absdata(name, x, 0)
 {
-	acquire_resourse();
-	if (!init_from_tree(t, varname)) release_resourse();
+	init(t, wname);
 }
 
-dataset::dataset(TTree * t, const std::vector<const char *> & varname, const char * wname):
-	m_nbin(0),
-	m_size(t->GetEntries()),
-	m_dim(varname.size())
+dataset::dataset(const char * name, TTree * t, const std::vector<variable> & xvec, const char * wname):
+	absdata(name, xvec, 0)
 {
-	acquire_resourse();
-	if (!init_from_tree(t, varname, wname)) release_resourse();
+	init(t, wname);
 }
 
 dataset::~dataset()
 {
-	release_resourse();
 }
 
-void dataset::acquire_resourse()
+void dataset::add(const double * x, double w)
 {
-	m_arr = new double[m_size*m_dim];
-	for (size_t u = 0; u < m_size*m_dim; ++u) {
-		m_arr[u] = 0;
-	}
-	
-	m_weight = new double[m_size];
-	for (size_t u = 0; u < m_size; ++u) {
-		m_weight[u] = 0;
-	}
-}
-
-void dataset::add_to_hist(TH1 * h, size_t dim)
-{
-	if (dim < m_dim) {
-		for (size_t u = 0; u < m_size; ++u) {
-			h->Fill(at(u)[dim], weight(u));
-		}
-	}
-}
-
-void dataset::add_to_hist(TH2 * h, size_t dimx, size_t dimy)
-{
-	if (dimx < m_dim && dimy < m_dim) {
-		for (size_t u = 0; u < m_size; ++u) {
-			h->Fill(at(u)[dimx], at(u)[dimy], weight(u));
-		}
-	}
-}
-
-bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varname)
-{
-	std::map<std::string, double> dmap;
-	std::map<std::string, float> fmap;
+	bool sel = true;
+	std::vector<double> dp;
 	for (size_t u = 0; u < m_dim; ++u) {
-		auto * leaf = t->FindLeaf(varname[u]);
+		if (x[u] < m_min[u] || x[u] > m_max[u]) {
+			sel = false;
+			break;
+		}
+		dp.push_back(x[u]);
+	}
+	if (sel) {
+		++m_size;
+		m_arr.insert(m_arr.end(), dp.begin(), dp.end());
+		m_weight.push_back(w);
+		m_nevt += w;
+	}
+}
+
+bool dataset::init(TTree * t, const char * wname)
+{
+	std::map<const char *, double> dmap;
+	std::map<const char *, float> fmap;
+	for (auto * v: m_varlist) {
+		const char * name = v->name();
+		auto * leaf = t->FindLeaf(name);
+		bool status = false;
 		if (leaf) {
 			if (!strcmp(leaf->GetTypeName(), "Double_t")) {
-				t->SetBranchAddress(varname[u], &dmap[varname[u]]);
+				t->SetBranchAddress(name, &dmap[name]);
+				status = true;
 			}
 			else if (!strcmp(leaf->GetTypeName(), "Float_t")) {
-				t->SetBranchAddress(varname[u], &fmap[varname[u]]);
-			}
-			else return false;
-		}
-		else return false;
-	}
-
-	m_wsize = 0;
-	double * curr = m_arr;
-	for (size_t u = 0; u < m_size; ++u) {
-		t->GetEntry(u);
-		for (size_t v = 0; v < m_dim; ++v) {
-			if (dmap.find(varname[v]) != dmap.end()) {
-				*curr = dmap[varname[v]];
-				++curr;
-			}
-			else {
-				*curr = fmap[varname[v]];
-				++curr;
+				t->SetBranchAddress(name, &fmap[name]);
+				status = true;
 			}
 		}
-		m_weight[u] = 1;
-		m_wsize += 1;
+		if (!status) {
+			MSG_ERROR("cannot find float/double leaf named '", wname, "'");
+			return false;
+		}
 	}
-	return true;
-}
-
-bool dataset::init_from_tree(TTree * t, const std::vector<const char *> & varname, const char * wname)
-{
-	if (init_from_tree(t, varname)) {
-		m_wsize = 0;
-		double wd;
-		float wf;
+	
+	double wd;
+	float wf;
+	int wcase = 0;
+	if (wname) {
 		auto * leaf = t->FindLeaf(wname);
 		if (leaf) {
 			if (!strcmp(leaf->GetTypeName(), "Double_t")) {
 				t->SetBranchAddress(wname, &wd);
-				for (size_t u = 0; u < m_size; ++u) {
-					t->GetEntry(u);
-					m_weight[u] = wd; 
-					m_wsize += wd;
-				}
+				wcase = 1;
 			}
 			else if (!strcmp(leaf->GetTypeName(), "Float_t")) {
 				t->SetBranchAddress(wname, &wf);
-				for (size_t u = 0; u < m_size; ++u) {
-					t->GetEntry(u);
-					m_weight[u] = wf; 
-					m_wsize += wf;
-				}
+				wcase = 2;
 			}
-			else return false;
 		}
-		else return false;
+		if (!wcase) {
+			MSG_WARNING("cannot find float/double leaf named '", wname, "'");
+		}
+	}
+
+	m_nevt = 0;
+	for (size_t u = 0; u < m_size; ++u) {
+		t->GetEntry(u);
+
+		std::vector<double> dp;
+		for (size_t v = 0; v < m_dim; ++v) {
+			const char * name = m_varlist[v]->name();
+			
+			double x;
+			if (dmap.find(name) != dmap.end()) x = dmap[name];
+			else x = fmap[name];
+			
+			if (x < m_min[v] || x > m_max[v]) dp.push_back(x);
+		}
+
+		if (dp.size() == m_dim) {
+			m_arr.insert(m_arr.end(), dp.begin(), dp.end());
+			double w = 1;
+			if (wcase == 1) w = wd;
+			else if (wcase == 2) w = wf;
+			m_weight.push_back(w);
+			m_nevt += w;
+		}
 	}
 	return true;
-}
-
-double dataset::max(int n)
-{
-	if (!m_size || n >= m_dim) return 0;
-	
-	double m = m_arr[n];
-	for (size_t u = 1; u < m_size; ++u) {
-		if (m < m_arr[u*m_dim+n]) m = m_arr[u*m_dim+n];
-	}
-	return m;
-}
-
-double dataset::min(int n)
-{
-	if (!m_size || n >= m_dim) return 0;
-	
-	double m = m_arr[n];
-	for (size_t u = 1; u < m_size; ++u) {
-		if (m > m_arr[u*m_dim+n]) m = m_arr[u*m_dim+n];
-	}
-	return m;
-}
-
-void dataset::release_resourse()
-{
-	if (m_arr) delete[] m_arr;
-	if (m_weight) delete [] m_weight;
-}
-
-template <typename ... T> void dataset::plot_on(plot * frame, T ... action)
-{
-	size_t dim = frame->proj_dim();
-	if (dim < m_dim) {
-		TH1F * h = frame->generate_hist(this, dim);
-		frame->add(h, std::forward<T>(action)...);
-		frame->fill(h, this, dim);
-	}
-	else {
-		std::cout << "[dataset] error: project dimension in request (" << dim << ") is not allowed for this dataset (0~" << m_dim-1 << ")" << std::endl;
-	}
-}
-
-void dataset::plot2d(TH2 * h, const char * option, size_t dimx, size_t dimy)
-{
-	if (dimx < m_dim && dimy < m_dim) {
-		for (int u = 0; u < m_size; ++u) {
-			double x = at(u)[dimx];
-			double y = at(u)[dimy];
-			h->Fill(x, y, weight(u));
-		}
-	}
-	else {
-		std::cout << "[dataset] error: project dimension in request (" << dimx << ", " << dimy << ") is not allowed for this dataset (0~" << m_dim-1 << ")" << std::endl;
-	}
-	h->Draw(option);
-}
-
-void dataset::project_to_hist(TH1 * h, size_t dim)
-{
-	if (dim < m_dim) {
-		h->Reset();
-		add_to_hist(h, dim);
-	}
-}
-
-void dataset::project_to_hist(TH2 * h, size_t dimx, size_t dimy)
-{
-	if (dimx < m_dim && dimy < m_dim) {
-		h->Reset();
-		add_to_hist(h, dimx, dimy);
-	}
 }

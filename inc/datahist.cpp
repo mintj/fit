@@ -1,70 +1,48 @@
 #include <iostream>
+#include "TH1F.h"
 #include "TString.h"
 #include "datahist.h"
-#include "plot.h"
+#include "util.h"
+#include "variable.h"
 
-datahist::datahist(TH1 * h):
-	dataset(h->GetNbinsX(), 1),
-	m_hist(h)
+datahist::datahist(const char * name, variable & x, TH1 * h):
+	absdata(name, x, h->GetNbinsX()),
+	m_err(h->GetNbinsX(), 0),
+	m_err_down(h->GetNbinsX(), 0),
+	m_err_up(h->GetNbinsX(), 0),
+	m_edge(h->GetNbinsX()+1, 0)
 {
-	acquire_resourse();
-	if (!init_from_h1d(h)) release_resourse();
+	int nbin = h->GetNbinsX();
+	if (x.limit_down() != h->GetBinLowEdge(1) || x.limit_up() != h->GetBinLowEdge(nbin) + h->GetBinWidth(nbin)) {
+		MSG_ERROR("range of variable '", x.name(), "' does not match that of hist '", h->GetName(), "'");
+		m_hist = 0;
+	}
+	else {
+		m_hist = (TH1F *)h->Clone();
+		m_hist->SetName(Form("%p", m_hist));
+		m_hist->SetDirectory(0);
+		m_nevt = 0;
+		for (size_t u = 0; u < h->GetNbinsX(); ++u) {
+			m_arr[u] = h->GetBinCenter(u+1);
+			m_weight[u] = h->GetBinContent(u+1);
+			m_edge[u] = h->GetBinLowEdge(u+1);
+			m_err[u] = h->GetBinError(u+1);
+			m_err_down[u] = h->GetBinErrorLow(u+1);
+			m_err_up[u] = h->GetBinErrorUp(u+1);
+			m_nevt += m_weight[u];
+		}
+		m_edge[m_size] = m_edge[m_size-1] + h->GetBinWidth(m_size);
+		m_min[0] = m_edge[0];
+		m_max[0] = m_edge[m_size];
+	}
 }
 
 datahist::~datahist()
 {
-	release_resourse();
+	if (m_hist) delete m_hist;
 }
 
-void datahist::acquire_resourse()
+int datahist::find_bin(double x) 
 {
-	m_edge = new double[m_size+1];
-	m_err = new double[m_size];
-	m_err_down = new double[m_size];
-	m_err_up = new double[m_size];
-}
-
-bool datahist::init_from_h1d(TH1 * h)
-{
-	m_wsize = 0;
-	for (size_t u = 0; u < h->GetNbinsX(); ++u) {
-		m_arr[u] = h->GetBinCenter(u+1);
-		m_weight[u] = h->GetBinContent(u+1);
-		m_edge[u] = h->GetBinLowEdge(u+1);
-		m_err[u] = h->GetBinError(u+1);
-		m_err_down[u] = h->GetBinErrorLow(u+1);
-		m_err_up[u] = h->GetBinErrorUp(u+1);
-		m_wsize += m_weight[u];
-	}
-	m_edge[m_size] = m_edge[m_size-1] + h->GetBinWidth(m_size);
-	return true;
-}
-
-double datahist::max(int n)
-{
-	return m_edge[0];
-}
-
-double datahist::min(int n)
-{
-	return m_edge[m_size];
-}
-
-template<typename... T> void datahist::plot_on(plot * frame, T... action)
-{
-	size_t dim = frame->proj_dim();
-	if (dim) {
-		std::cout << "[datahist] warning: 'datahist' is 1d data, dimension argument in 'plot_on' method is ignored" << endl;
-	}
-	TH1F * h = frame->generate_hist(this, dim);
-	frame->add(h, std::forward<T>(action)...);
-	frame->fill(h, this, dim);
-}
-
-void datahist::release_resourse()
-{
-	if (m_edge) delete[] m_edge;
-	if (m_err) delete [] m_err;
-	if (m_err_down) delete [] m_err_down;
-	if (m_err_up) delete [] m_err_up;
+	return m_hist->FindBin(x)-1;
 }

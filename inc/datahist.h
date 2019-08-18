@@ -1,17 +1,15 @@
 #ifndef DATAHIST_H__
 #define DATAHIST_H__
 
-#include "TH1.h"
-#include "dataset.h"
+#include "absdata.h"
 
-class plot;
+class TH1F;
+class variable;
 
-class datahist: public dataset
+class datahist: public absdata
 {
 	public:
-		datahist(TH1 * h);
-		datahist(const datahist & d) = delete;
-		datahist & operator=(const datahist & d) = delete;
+		datahist(const char * name, variable & x, TH1 * h);
 		virtual ~datahist();
 		
 		double edge_lo(int n) { return m_edge[n]; }
@@ -19,28 +17,24 @@ class datahist: public dataset
 		double err(int n) { return m_err[n]; }
 		double err_down(int n) { return m_err_down[n]; }
 		double err_up(int n) { return m_err_up[n]; }
-		int find_bin(double x) { return m_hist->FindBin(x)-1; }
-		template<typename... T> void plot_on(plot * frame, T... action);
-		void plot2d(size_t dimx, size_t dimy, TH2 * h) = delete;
-		TH1 * source_hist() { return m_hist; }
+		int find_bin(double x);
+		TH1F * hist() { return m_hist; }
 		double width(int n) { return edge_hi(n) - edge_lo(n); }
 		
-		virtual void add_to_hist(TH1 * h, size_t dim);
-		double max(int n = 0);
-		double min(int n = 0);
-		virtual void project_to_hist(TH1 * h, size_t dim);
+		void fill_hist(TH1 * h, size_t dim) = delete;
+		void fill_hist(TH2 * h, size_t dimx, size_t dimy) = delete;
+		void project(TH1 * h, size_t dim) = delete;
+		void project(TH2 * h, size_t dimx, size_t dimy) = delete;
 
 	private:
-		void acquire_resourse();
-		bool init_from_h1d(TH1 * h1);
-		void release_resourse();
+		void init();
 	
 	protected:
-		TH1 * m_hist;
-		double * m_edge;
-		double * m_err;
-		double * m_err_down;
-		double * m_err_up;
+		TH1F * m_hist;
+		std::vector<double> m_edge;
+		std::vector<double> m_err;
+		std::vector<double> m_err_down;
+		std::vector<double> m_err_up;
 };
 
 #endif

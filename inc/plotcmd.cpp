@@ -1,80 +1,67 @@
 #ifndef PLOTCOMMOND_H__
 #define PLOTCOMMOND_H__
 
-#include "TROOT.h"
+#include "TGraph.h"
+#include "TH1F.h"
+#include "plotcmd.h"
 
-void * msfit::components(int n)
+void plotcmd::add_cmd_for_line(const std::function<void(TAttLine *)> & f)
 {
-	plotcmd::components_to_draw().insert(n);
-	return 0;
+	sm_cmd_for_line.push_back(f);
 }
 
-template <typename ... T> void * msfit::components(int n, T ... rest)
+void plotcmd::add_cmd_for_marker(const std::function<void(TAttMarker *)> & f)
 {
-	plotcmd::components_to_draw().insert(n);
-	msfit::components(rest...);
-	return 0;
+	sm_cmd_for_marker.push_back(f);
 }
 
-void * msfit::linecolor(Color_t n)
+void plotcmd::add_cmd_for_named(const std::function<void(TNamed *)> & f)
 {
-	plotcmd::hist_actions().push_back([n](TH1F * h) { h->SetLineColor(n); });
-	return 0;
-}
-
-void * msfit::linestyle(Style_t n)
-{
-	plotcmd::hist_actions().push_back([n](TH1F * h) { h->SetLineStyle(n); });
-	return 0;
-}
-
-void * msfit::linewidth(Width_t n)
-{
-	plotcmd::hist_actions().push_back([n](TH1F * h) { h->SetLineWidth(n); });
-	return 0;
-}
-
-void * msfit::markercolor(Color_t n)
-{
-	plotcmd::hist_actions().push_back([n](TH1F * h) { h->SetMarkerColor(n); });
-	return 0;
-}
-
-void * msfit::markersize(Size_t n)
-{
-	plotcmd::hist_actions().push_back([n](TH1F * h) { h->SetMarkerSize(n); });
-	return 0;
-}
-
-void * msfit::markerstyle(Style_t n)
-{
-	plotcmd::hist_actions().push_back([n](TH1F * h) { h->SetMarkerStyle(n); });
-	return 0;
-}
-
-void * msfit::name(const char * name)
-{
-	plotcmd::hist_actions().push_back([name](TH1F * h) { h->SetName(name); });
-	return 0;
-}
-
-void * msfit::project(int n)
-{
-	plotcmd::project_dim() = n;
-	return 0;
+	sm_cmd_for_named.push_back(f);
 }
 
 void plotcmd::clear()
 {
-	sm_hist_actions.clear();
-	sm_components.clear();
-	sm_projdim = 0;
+	sm_cmd_for_line.clear();
+	sm_cmd_for_marker.clear();
+	sm_cmd_for_named.clear();
+	//sm_components.clear();
+	//sm_projdim = 0;
 }
 
-size_t plotcmd::sm_projdim;
+void plotcmd::execute(TGraph * gr)
+{
+	for (auto & cmd: sm_cmd_for_line) {
+		cmd(gr);
+	}
+	for (auto & cmd: sm_cmd_for_marker) {
+		cmd(gr);
+	}
+	for (auto & cmd: sm_cmd_for_named) {
+		cmd(gr);
+	}
+}
 
-std::set<int> plotcmd::sm_components;
+void plotcmd::execute(TH1F * h)
+{
+	for (auto & cmd: sm_cmd_for_line) {
+		cmd(h);
+	}
+	for (auto & cmd: sm_cmd_for_marker) {
+		cmd(h);
+	}
+	for (auto & cmd: sm_cmd_for_named) {
+		cmd(h);
+	}
+}
+//size_t plotcmd::sm_projdim;
+//
+//std::set<int> plotcmd::sm_components;
 
-std::vector<std::function<void(TH1F *)>> plotcmd::sm_hist_actions;
+std::vector<std::function<void(TAttLine *)>> plotcmd::sm_cmd_for_line;
+
+std::vector<std::function<void(TAttMarker *)>> plotcmd::sm_cmd_for_marker;
+
+std::vector<std::function<void(TNamed *)>> plotcmd::sm_cmd_for_named;
 
 #endif

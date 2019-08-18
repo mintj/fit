@@ -2,36 +2,29 @@
 #define PLOTCMD_H__
 
 #include <vector>
-#include <set>
+//#include <set>
 #include <functional>
-#include "TROOT.h"
 
-namespace msfit
-{
-	void * components(int n);
-	template <typename ... T> void * components(int n, T ... rest);
-	void * linecolor(Color_t n);
-	void * linestyle(Style_t n);
-	void * linewidth(Width_t n);
-	void * markercolor(Color_t n);
-	void * markersize(Size_t n);
-	void * markerstyle(Style_t n);
-	void * name(const char * name);
-	void * project(int n);
-}
+class TNamed;
+class TAttLine;
+class TAttMarker;
+class TH1F;
+class TGraph;
 
 class plotcmd
 {
 	public:
+		static void add_cmd_for_line(const std::function<void(TAttLine *)> & f);
+		static void add_cmd_for_marker(const std::function<void(TAttMarker *)> & f);
+		static void add_cmd_for_named(const std::function<void(TNamed *)> & f);
 		static void clear();
-		static std::set<int> & components_to_draw() { return sm_components; }
-		static std::vector<std::function<void(TH1F *)>> & hist_actions() { return sm_hist_actions; }
-		static size_t & project_dim() { return sm_projdim; }
-	
+		static void execute(TGraph * gr);
+		static void execute(TH1F * h);
+
 	private:
-		static size_t sm_projdim;
-		static std::set<int> sm_components;
-		static std::vector<std::function<void(TH1F *)>> sm_hist_actions;
+		static std::vector<std::function<void(TNamed *)>> sm_cmd_for_named;
+		static std::vector<std::function<void(TAttLine *)>> sm_cmd_for_line;
+		static std::vector<std::function<void(TAttMarker *)>> sm_cmd_for_marker;
 };
 
 #endif
