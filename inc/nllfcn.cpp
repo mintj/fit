@@ -80,6 +80,7 @@ double nllfcn::operator()(const std::vector<double> & par) const
 		absdata * d = m_datalist[u];
 		if (p->updated() || newcall) {
 			double logsum = 0;
+			newcall = false;
 
 			dataset * ds = dynamic_cast<dataset *>(d);
 			if (ds) {
@@ -89,7 +90,7 @@ double nllfcn::operator()(const std::vector<double> & par) const
 						logsum += log(rv) * d->weight(v);
 					}
 					else {
-						MSG_WARNING("negative pdf value will be ignored during fit, it might cause a fail fit");
+						MSG_WARNING("non-positive pdf value is ignored during nll fit, it might cause failure");
 					}
 				}
 				logsum += log(p->norm()) * d->nevt();
@@ -97,6 +98,20 @@ double nllfcn::operator()(const std::vector<double> & par) const
 
 			datahist * dh = dynamic_cast<datahist *>(d);
 			if (dh) {
+				double ntot = dh->nevt();
+				double min = dh->min();
+				double max = dh->max();
+				double sf = ntot / p->recursive_simpson(min, max);
+				for (int u = 0; u < dh->size(); ++u) {
+					double nobs = dh->weight(u);
+					double nfit = sf * p->recursive_simpson(dh->edge_lo(u), dh->edge_hi(u));
+					//if (nobs) logsum -= (nfit-nobs)*(nfit-nobs)/nobs;
+					//else if (nfit) logsum -= (nfit-nobs)*(nfit-nobs)/nfit;
+					double prob = 0;
+					if (nobs) prob = TMath::Poisson(nfit, nobs);
+					else if (nfit) prob = TMath::Poisson(nobs, nfit);
+					if (prob > 0) logsum += log(prob);
+				}
 			}
 			
 			m_arr_logsum[u] = logsum;

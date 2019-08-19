@@ -41,10 +41,8 @@ void dataset::add(const double * x, double w)
 		dp.push_back(x[u]);
 	}
 	if (sel) {
-		++m_size;
 		m_arr.insert(m_arr.end(), dp.begin(), dp.end());
 		m_weight.push_back(w);
-		m_nevt += w;
 	}
 }
 
@@ -92,8 +90,7 @@ bool dataset::init(TTree * t, const char * wname)
 		}
 	}
 
-	m_nevt = 0;
-	for (size_t u = 0; u < m_size; ++u) {
+	for (size_t u = 0; u < t->GetEntries(); ++u) {
 		t->GetEntry(u);
 
 		std::vector<double> dp;
@@ -113,7 +110,6 @@ bool dataset::init(TTree * t, const char * wname)
 			if (wcase == 1) w = wd;
 			else if (wcase == 2) w = wf;
 			m_weight.push_back(w);
-			m_nevt += w;
 		}
 	}
 	return true;

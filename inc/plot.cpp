@@ -13,8 +13,7 @@
 plot::plot(variable & var):
 	m_var(&var), m_normhist(0)
 {
-	TH1F * h = new TH1F("unnamed", "", var.bins(), var.limit_down(), var.limit_up());
-	h->SetName(Form("%p", h));
+	TH1F * h = new TH1F(Form("plot_of_%s", var.name()), "", var.bins(), var.limit_down(), var.limit_up());
 	h->SetTitle(0);
 	m_hist.push_back(h);
 	m_option[h] = "";
@@ -24,6 +23,9 @@ plot::~plot()
 {
 	for (auto h: m_hist) {
 		if (h) delete h;
+	}
+	for (auto gr: m_graph) {
+		if (gr) delete gr;
 	}
 }
 
@@ -113,8 +115,9 @@ TGraph * plot::create_graph_and_fill(abspdf * p)
 			for (int u = 0; u <= bins; ++u) {
 				y[u] *= sf;
 			}
+			gr = new TGraph(bins, &(x[0]), &(y[0]));
+			gr->SetName(Form("[%s]_project_on_[%s]", p->name(), m_var->name()));
 		}
-		gr = new TGraph(bins, &(x[0]), &(y[0]));
 	}
 	return gr;
 }
@@ -135,7 +138,7 @@ TH1F * plot::create_hist_and_fill(absdata * d)
 			h = (TH1F *)m_hist[0]->Clone();
 			d->project(h, dim);
 		}
-		h->SetName(Form("%p", h));
+		h->SetName(Form("[%s]_project_on_[%s]", d->name(), m_var->name()));
 		h->SetDirectory(0);
 	}
 	return h;

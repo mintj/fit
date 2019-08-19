@@ -31,6 +31,6 @@ double gaussian::norm()
 	double s1 = (xmax-m)/s/sqrt(2);
 	double s2 = (xmin-m)/s/sqrt(2);
 
-	//return 0.5 * (TMath::Erf(s1) - TMath::Erf(s2));
-	return (TMath::Erf(s1) - TMath::Erf(s2)) / sqrt(8*TMath::Pi()) / s;
+	double area = 0.5 * (TMath::Erf(s1) - TMath::Erf(s2));
+	return 1.0/sqrt(2*TMath::Pi())/s/area;
 }

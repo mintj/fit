@@ -3,30 +3,29 @@
 
 #include <vector>
 #include <map>
-#include "absfcn.h"
+#include "TMath.h"
+#include "fcn.h"
 
-class datahist;
+class addpdf;
 class dataset;
-class abspdf;
+class pdf;
+class variable;
 
-class nllfcn: public absfcn
+class nllfcn: public fcn
 {
 	public:
 		nllfcn() = default;
-		nllfcn(abspdf * p, absdata * d);
+		nllfcn(pdf * p, dataset * d);
 		virtual ~nllfcn();
-
-		void minimize(bool minos_err = false);
+		
+		void add(pdf * p, dataset * d);
 		
 		virtual double operator()(const std::vector<double> & par) const;
 		virtual double Up() const { return 0.5; }
 
-	private:
-		bool init();
-
 	protected:
 		mutable std::vector<double> m_arr_logsum;
-		mutable std::vector<std::vector<double>> m_arr_rdata;
+		mutable std::vector<double> m_arr_norm;
 };
 
 #endif

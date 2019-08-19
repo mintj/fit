@@ -21,7 +21,6 @@ datahist::datahist(const char * name, variable & x, TH1 * h):
 		m_hist = (TH1F *)h->Clone();
 		m_hist->SetName(Form("%p", m_hist));
 		m_hist->SetDirectory(0);
-		m_nevt = 0;
 		for (size_t u = 0; u < h->GetNbinsX(); ++u) {
 			m_arr[u] = h->GetBinCenter(u+1);
 			m_weight[u] = h->GetBinContent(u+1);
@@ -29,11 +28,10 @@ datahist::datahist(const char * name, variable & x, TH1 * h):
 			m_err[u] = h->GetBinError(u+1);
 			m_err_down[u] = h->GetBinErrorLow(u+1);
 			m_err_up[u] = h->GetBinErrorUp(u+1);
-			m_nevt += m_weight[u];
 		}
-		m_edge[m_size] = m_edge[m_size-1] + h->GetBinWidth(m_size);
+		m_edge[size()] = m_edge[size()-1] + h->GetBinWidth(size());
 		m_min[0] = m_edge[0];
-		m_max[0] = m_edge[m_size];
+		m_max[0] = m_edge[size()];
 	}
 }
 
