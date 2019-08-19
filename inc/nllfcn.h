@@ -2,7 +2,6 @@
 #define NLLFCN_H__
 
 #include <vector>
-#include <map>
 #include "absfcn.h"
 
 class datahist;

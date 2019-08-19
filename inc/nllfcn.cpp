@@ -105,12 +105,12 @@ double nllfcn::operator()(const std::vector<double> & par) const
 				for (int u = 0; u < dh->size(); ++u) {
 					double nobs = dh->weight(u);
 					double nfit = sf * p->recursive_simpson(dh->edge_lo(u), dh->edge_hi(u));
-					//if (nobs) logsum -= (nfit-nobs)*(nfit-nobs)/nobs;
-					//else if (nfit) logsum -= (nfit-nobs)*(nfit-nobs)/nfit;
-					double prob = 0;
-					if (nobs) prob = TMath::Poisson(nfit, nobs);
-					else if (nfit) prob = TMath::Poisson(nobs, nfit);
-					if (prob > 0) logsum += log(prob);
+					if (nfit > 0) {
+						logsum += nobs*log(nfit);
+					}
+					else {
+						MSG_WARNING("non-positive pdf value is ignored during nll fit, it might cause failure");
+					}
 				}
 			}
 			

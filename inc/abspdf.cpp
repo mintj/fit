@@ -1,11 +1,8 @@
 #include <iostream>
 #include "TString.h"
-//#include "Minuit2/FunctionMinimum.h"
-//#include "Minuit2/MnMigrad.h"
-//#include "Minuit2/MnMinos.h"
-//#include "Minuit2/MnUserParameters.h"
 #include "TRandom3.h"
 #include "abspdf.h" 
+#include "chi2fcn.h"
 #include "datahist.h"
 #include "dataset.h"
 #include "nllfcn.h"
@@ -37,25 +34,24 @@ abspdf::~abspdf()
 {
 }
 
-//void abspdf::chi2fit(datahist & data, bool minos_err)
-//{
-//	chi2fcn * chi2 = create_chi2(&data);
-//	chi2->minimize(minos_err);
-//}
-//
+void abspdf::chi2fit(datahist & data, bool minos_err)
+{
+	chi2fcn * chi2 = create_chi2(&data);
+	chi2->minimize(minos_err);
+}
+
+chi2fcn * abspdf::create_chi2(datahist * data)
+{
+	m_chi2.reset(new chi2fcn(this, data));
+	return m_chi2.get();
+}
+
 nllfcn * abspdf::create_nll(absdata * data)
 {
 	m_nll.reset(new nllfcn(this, data));
 	return m_nll.get();
 }
 
-//
-//chi2fcn * abspdf::create_chi2(datahist * data)
-//{
-//	m_chi2.reset(new chi2fcn(this, data));
-//	return m_chi2.get();
-//}
-//
 void abspdf::fit(absdata & data, bool minos_err)
 {
 	nllfcn * nll = create_nll(&data);

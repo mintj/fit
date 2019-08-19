@@ -1,6 +1,7 @@
 #include "absdata.cpp"
 #include "absfcn.cpp"
 #include "abspdf.cpp"
+#include "chi2fcn.cpp"
 #include "datahist.cpp"
 #include "dataset.cpp"
 #include "gaussian.cpp"

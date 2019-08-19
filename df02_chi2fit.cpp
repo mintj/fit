@@ -1,9 +1,8 @@
 #include "inc/header.h"
 
-void df02_datahist()
+void df02_chi2fit()
 {
 	variable x("x", -10, 10);
-	//dataset ds("ds", x);
 	TH1F * h = new TH1F("h", "", 100, -10, 10);
 	double m0 = -3;
 	double s0 = 4.5;
@@ -11,7 +10,6 @@ void df02_datahist()
 	for (int u = 0; u < 100000; ++u) {
 		double rx = rndm.Gaus(m0, s0);
 		h->Fill(rx);
-		//ds.add(&rx);
 	}
 	
 	datahist dh("dh", x, h);
@@ -20,7 +18,7 @@ void df02_datahist()
 	variable s("s", 2, 0.1, 10);
 	gaussian model("model", x, m, s);
 
-	model.fit(dh, true);
+	model.chi2fit(dh, true);
 	
 	plot * frame = x.frame();
 	dh.plot_on(frame);

@@ -6,7 +6,7 @@
 #include <functional>
 
 class absdata;
-//class chi2fcn;
+class chi2fcn;
 class datahist;
 class dataset;
 class nllfcn;
@@ -40,13 +40,13 @@ class abspdf
 		double simpson(double a, double b);
 		double operator()(const double * x);
 		
-		//// interface for chi2fit
-		//void chi2fit(datahist & data, bool minos_err = false);
-		//chi2fcn * create_chi2(datahist * data);
+		// interface for chi2fit
+		void chi2fit(datahist & data, bool minos_err = false);
+		chi2fcn * create_chi2(datahist * data);
 
 		// interface for nllfit
-		virtual nllfcn * create_nll(absdata * data);
-		virtual void fit(absdata & data, bool minos_err = false);
+		nllfcn * create_nll(absdata * data);
+		void fit(absdata & data, bool minos_err = false);
 		
 		// generate dataset
 		dataset * generate(variable & x, size_t nevt = 1000, size_t ns = 100000);
@@ -68,6 +68,7 @@ class abspdf
 		std::vector<double> m_lastvalue;
 		std::vector<variable *> m_varlist;
 		std::vector<variable *> m_paralist;
+		std::shared_ptr<chi2fcn> m_chi2;
 		std::shared_ptr<nllfcn> m_nll;
 };
 
